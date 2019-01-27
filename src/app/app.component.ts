@@ -1,10 +1,19 @@
-import { Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+} from '@angular/core';
+
+import { ImgstryValues } from 'app/imgstry-editor/imgstry-editor.component';
 
 @Component({
-  selector: 'app-root',
+  selector: 'imgstry-ui',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-  title = 'app works!';
+  public value: ImgstryValues = {
+    brightness: 0,
+    contrast: 0,
+  };
 }
