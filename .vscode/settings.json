@@ -1,0 +1,16 @@
+{
+    "html.format.wrapAttributes": "force-aligned",
+    "eslint.alwaysShowStatus": true,
+    "eslint.format.enable": true,
+    "eslint.codeActionsOnSave.mode": "all",
+    "eslint.options": {
+        "rulePaths": [".rules"]
+    },
+    "files.trimTrailingWhitespace": true,
+    "[typescript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    }
+}
