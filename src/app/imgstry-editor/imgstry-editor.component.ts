@@ -1,14 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  Input,
-  OnChanges,
-  OnInit,
-  Renderer,
-  SimpleChanges,
-  ViewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild, Renderer2 } from '@angular/core';
 import {
   distinctUntilChanged,
   filter,
@@ -34,7 +24,7 @@ const RENDER_PROPERTIES = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImgstryEditorComponent implements OnInit, OnChanges {
-  @ViewChild('canvas')
+  @ViewChild('canvas', { static: true })
   public canvas: ElementRef;
 
   @Input()
@@ -52,7 +42,7 @@ export class ImgstryEditorComponent implements OnInit, OnChanges {
   private _load$ = new BehaviorSubject<string>(null);
 
   constructor(
-    private _renderer: Renderer,
+    private _renderer: Renderer2,
   ) {
     this._load$
       .pipe(
@@ -75,13 +65,14 @@ export class ImgstryEditorComponent implements OnInit, OnChanges {
     await this._processor
       .brightness(this.brightness)
       .contrast(this.contrast)
-      .render();
+      .render('original');
   }
 
   private async _loadImage(url: string): Promise<void> {
     const image = await Imgstry.loadImage(url);
-    this._renderer.setElementProperty(this.canvas.nativeElement, 'width', image.width);
-    this._renderer.setElementProperty(this.canvas.nativeElement, 'height', image.height);
+    console.log(image);
+    this._renderer.setProperty(this.canvas.nativeElement, 'width', image.width);
+    this._renderer.setProperty(this.canvas.nativeElement, 'height', image.height);
     this._processor = new Imgstry(this.canvas.nativeElement);
     this._processor.drawImage(image);
   }
