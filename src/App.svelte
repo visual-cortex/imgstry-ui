@@ -1,30 +1,23 @@
 <script>
-	export let name;
+  import Stage from "./components/Stage.svelte";
+  import FilterPane from "./components/FilterPane.svelte";
+  import "./App.scss";
+
+  // private
+  let imgstry;
 </script>
 
-<main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+<main class="imgstry-editor">
+  <div class="imgstry-stage">
+    <Stage
+      src={'https://i.imgur.com/Ht8sj8f.jpg'}
+      on:mount={ev => (imgstry = ev.detail.imgstry)} />
+  </div>
+  <div class="imgstry-filter-pane">
+    {#if imgstry != null}
+      <FilterPane {imgstry} />
+    {:else}
+      <p>Loading...</p>
+    {/if}
+  </div>
 </main>
-
-<style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
-
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
-</style>

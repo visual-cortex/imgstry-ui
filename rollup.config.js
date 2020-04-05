@@ -3,6 +3,8 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
+import postcss from 'rollup-plugin-postcss';
+import * as Imgstry from 'imgstry';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -22,7 +24,7 @@ export default {
 			// a separate file - better for performance
 			css: css => {
 				css.write('public/build/bundle.css');
-			}
+			},
 		}),
 
 		// If you have external dependencies installed from
@@ -32,10 +34,25 @@ export default {
 		// https://github.com/rollup/plugins/tree/master/packages/commonjs
 		resolve({
 			browser: true,
-			dedupe: ['svelte']
+			dedupe: ['svelte'],
 		}),
-		commonjs(),
-
+		commonjs({
+			namedExports: {
+				'imgstry': Object.keys(Imgstry),
+			},
+		}),
+		postcss({
+			extract: true,
+			minimize: true,
+			use: [
+				['sass', {
+					includePaths: [
+						'./src/theme',
+						'./node_modules',
+					],
+				}],
+			],
+		}),
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated
 		!production && serve(),
@@ -46,10 +63,10 @@ export default {
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
-		production && terser()
+		production && terser(),
 	],
 	watch: {
-		clearScreen: false
+		clearScreen: false,
 	}
 };
 
@@ -63,7 +80,7 @@ function serve() {
 
 				require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
 					stdio: ['ignore', 'inherit', 'inherit'],
-					shell: true
+					shell: true,
 				});
 			}
 		}
