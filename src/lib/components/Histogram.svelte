@@ -57,9 +57,6 @@
 </script>
 
 <div class="histogram">
-  <header>
-    <h2>Histogram</h2>
-  </header>
   <canvas bind:this={canvas} width={WIDTH} height={HEIGHT}></canvas>
 </div>
 
@@ -67,27 +64,13 @@
   .histogram {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-  }
-
-  header {
-    padding: 0 6px;
-  }
-
-  h2 {
-    margin: 0;
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
   }
 
   canvas {
     width: 100%;
     height: auto;
-    background: var(--bg-input);
-    border-radius: 4px;
+    background: radial-gradient(ellipse at center, #1c1c20 0%, #131316 100%);
+    border-radius: var(--radius-sm);
     border: 1px solid var(--border-soft);
   }
 </style>

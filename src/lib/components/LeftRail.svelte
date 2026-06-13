@@ -2,7 +2,9 @@
   import { Collapsible } from 'bits-ui';
   import { editor } from '../editor/editor.svelte';
   import { PRESETS, type Preset } from '../editor/presets';
+  import Chevron from './Chevron.svelte';
   import Histogram from './Histogram.svelte';
+  import RailCard from './RailCard.svelte';
 
   const grouped = PRESETS.reduce((acc, preset) => {
     if (!acc[preset.group]) {
@@ -15,32 +17,41 @@
   const groupOpen = $state<Record<string, boolean>>(
     Object.fromEntries(Object.keys(grouped).map((group) => [group, true])),
   );
+
+  const groupHues: Record<string, string> = {
+    Cinematic: '#c98ee5',
+    Vintage:   '#e3a14b',
+    Modern:    '#6aa8ff',
+    'B&W':     '#a5a5a8',
+  };
 </script>
 
 <aside class="left scroll">
-  <Histogram />
+  <RailCard title="Histogram">
+    <Histogram />
+  </RailCard>
 
-  <section>
-    <header>
-      <h2>Presets</h2>
-    </header>
-
+  <RailCard title="Presets" badge={PRESETS.length}>
     {#each Object.entries(grouped) as [group, presets]}
       <Collapsible.Root bind:open={groupOpen[group]} class="group">
-        <Collapsible.Trigger class="group-header">
-          <span class="caret">▸</span>
-          {group}
+        <Collapsible.Trigger class="group-trigger">
+          <span class="group-chev"><Chevron open={groupOpen[group]} /></span>
+          <span class="group-dot" style:background={groupHues[group] ?? 'var(--accent)'}></span>
+          <span class="group-name">{group}</span>
+          <span class="group-count">{presets.length}</span>
         </Collapsible.Trigger>
-        <Collapsible.Content>
+        <Collapsible.Content class="group-body">
           <ul>
             {#each presets as preset}
               <li>
                 <button
-                  class="ghost preset"
+                  class="preset"
                   disabled={!editor.hasImage}
                   onclick={() => editor.applyPreset(preset.patch, preset.name)}
+                  style:--swatch={groupHues[group] ?? 'var(--accent)'}
                 >
-                  {preset.name}
+                  <span class="swatch"></span>
+                  <span class="name">{preset.name}</span>
                 </button>
               </li>
             {/each}
@@ -48,26 +59,35 @@
         </Collapsible.Content>
       </Collapsible.Root>
     {/each}
-  </section>
+  </RailCard>
 
-  <section>
-    <header>
-      <h2>History</h2>
-    </header>
+  <RailCard title="History" badge={editor.history.length || null} grow>
     {#if editor.history.length === 0}
-      <p class="empty">No history yet.</p>
+      <div class="empty-state">
+        <p class="empty">No edits yet.</p>
+        <p class="empty-hint">Open an image and start adjusting; every change lands here as a snapshot.</p>
+      </div>
     {:else}
-      <ul>
-        {#each [...editor.history].reverse() as entry}
-          <li>
-            <button class="ghost history" onclick={() => editor.restoreHistory(entry)}>
-              {entry.label}
-            </button>
-          </li>
-        {/each}
-      </ul>
+      <div class="timeline">
+        <ul class="history-list">
+          {#each [...editor.history].reverse() as entry, index}
+            <li class:current={index === 0}>
+              <button class="history-entry" onclick={() => editor.restoreHistory(entry)}>
+                <span class="rail">
+                  <span class="node" class:head={index === 0}></span>
+                </span>
+                <span class="label">{entry.label}</span>
+                {#if index === 0}
+                  <span class="now">now</span>
+                {/if}
+              </button>
+            </li>
+          {/each}
+        </ul>
+        <p class="tip">Tip: tap any step to revert. Adjustments dedupe on snapshot.</p>
+      </div>
     {/if}
-  </section>
+  </RailCard>
 </aside>
 
 <style>
@@ -76,106 +96,250 @@
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 12px 8px;
+    gap: 14px;
+    padding: 12px;
+    flex: 1;
+    min-height: 0;
+    height: 100%;
   }
 
-  section {
+  :global(.left .group) {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
   }
 
-  section header {
-    padding: 0 6px;
+  :global(.left .group + .group) {
+    margin-top: 2px;
   }
 
-  h2 {
-    margin: 0;
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-  }
-
-  :global(.group) {
-    display: flex;
-    flex-direction: column;
-  }
-
-  :global(.group-header) {
+  :global(.left .group-trigger) {
     display: flex;
     align-items: center;
-    gap: 6px;
-    justify-content: flex-start;
-    color: var(--text-dim);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 6px;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 8px;
     background: transparent;
     border: none;
+    color: var(--text);
     cursor: pointer;
     font-family: inherit;
     text-align: left;
-    width: 100%;
+    border-radius: var(--radius-sm);
   }
 
-  :global(.group-header:hover) {
+  :global(.left .group-trigger:hover) {
+    background: var(--bg-elevated);
+  }
+
+  :global(.left .group-chev) {
+    display: inline-flex;
+    width: 12px;
+  }
+
+  :global(.left .group-dot) {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+  }
+
+  :global(.left .group-name) {
+    flex: 1;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
     color: var(--text);
   }
 
-  :global(.group-header .caret) {
+  :global(.left .group-count) {
+    font-family: var(--font-mono);
+    font-size: 10px;
     color: var(--text-muted);
-    transition: transform .12s ease;
-    font-size: 9px;
-    display: inline-block;
   }
 
-  :global(.group[data-state='open'] .caret) {
-    transform: rotate(90deg);
+  :global(.left .group-body) {
+    padding: 2px 0 6px 22px;
   }
 
   ul {
     list-style: none;
     margin: 0;
-    padding: 0 0 0 12px;
+    padding: 0;
     display: flex;
     flex-direction: column;
+    gap: 1px;
   }
 
   li {
     margin: 0;
   }
 
-  button.preset,
-  button.history {
+  .preset {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     width: 100%;
-    text-align: left;
-    justify-content: flex-start;
-    padding: 6px 8px;
-    font-size: 12px;
+    padding: 5px 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
     color: var(--text-dim);
-    border-radius: 4px;
-    min-height: 32px;
+    font-size: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
   }
 
-  button.preset:hover:not(:disabled),
-  button.history:hover {
+  .preset:hover:not(:disabled) {
     color: var(--text);
     background: var(--bg-elevated);
   }
 
-  button.history {
-    color: var(--text-muted);
-    font-size: 11px;
+  .preset:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  .swatch {
+    width: 4px;
+    height: 14px;
+    border-radius: 2px;
+    background: var(--swatch);
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  .preset:hover .swatch {
+    opacity: 1;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 24px 8px;
+    text-align: center;
   }
 
   .empty {
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .empty-hint {
     color: var(--text-muted);
     font-size: 11px;
     margin: 0;
-    padding: 4px 12px;
+    line-height: 1.4;
+  }
+
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: calc(8px + 7px); /* padding + half-node */
+    top: 16px;
+    bottom: 8px;
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      var(--border) 0%,
+      var(--border) 50%,
+      transparent 100%
+    );
+  }
+
+  .history-list {
+    gap: 0;
+    flex-shrink: 0;
+  }
+
+  .tip {
+    margin-top: auto;
+    padding: 10px 8px 4px;
+    color: var(--text-muted);
+    font-size: 10px;
+    line-height: 1.5;
+    border-top: 1px dashed var(--border-soft);
+  }
+
+  .history-entry {
+    display: grid;
+    grid-template-columns: 16px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 12px;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    border-radius: var(--radius-sm);
+  }
+
+  .history-entry:hover {
+    background: var(--bg-elevated);
+    color: var(--text);
+  }
+
+  .current .history-entry {
+    color: var(--text);
+  }
+
+  .rail {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 16px;
+    align-self: stretch;
+  }
+
+  .node {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--text-muted);
+    z-index: 1;
+    transition: background 0.12s ease, box-shadow 0.12s ease;
+    flex-shrink: 0;
+    margin-top: 6px;
+    box-shadow: 0 0 0 2px var(--bg-card);
+  }
+
+  .node.head {
+    background: var(--accent);
+    box-shadow: 0 0 0 2px var(--bg-card),
+                0 0 0 5px var(--accent-soft);
+  }
+
+  .label {
+    align-self: center;
+  }
+
+  .now {
+    align-self: center;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
   }
 </style>

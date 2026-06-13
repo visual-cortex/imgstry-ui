@@ -4,6 +4,7 @@
   import AdjustmentSlider from './AdjustmentSlider.svelte';
   import ColorPicker from './ColorPicker.svelte';
   import Panel from './Panel.svelte';
+  import RailFiller from './RailFiller.svelte';
   import Subhead from './Subhead.svelte';
   import SwitchRow from './SwitchRow.svelte';
   import ToneCurve from './ToneCurve.svelte';
@@ -84,6 +85,22 @@
     <Subhead label="Grain" />
     <AdjustmentSlider label="Amount" key="grain" min={0} max={100} bipolar={false} />
   </Panel>
+
+  <RailFiller />
+
+  <footer class="rail-footer">
+    <button
+      class="ghost reset-all"
+      {disabled}
+      onclick={() => editor.resetAdjustments()}
+    >
+      Reset all
+    </button>
+    <span class="mark">
+      <span class="dot"></span>
+      imgstry · develop
+    </span>
+  </footer>
 </aside>
 
 <style>
@@ -92,5 +109,47 @@
     border-left: 1px solid var(--border);
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+  }
+
+  .rail-footer {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border-soft);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.18), transparent);
+  }
+
+  .reset-all {
+    font-size: 11px;
+    padding: 6px 10px;
+    color: var(--text-dim);
+  }
+
+  .reset-all:hover:not(:disabled) {
+    color: var(--danger);
+  }
+
+  .mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: .5px;
+  }
+
+  .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
   }
 </style>

@@ -85,11 +85,11 @@ if (afterPreset === afterTemp) {
 
 // open tone curve panel
 await page.locator('.panel .header', { hasText: 'Tone Curve' }).first().click();
-await page.locator('.panel svg').first().waitFor({ timeout: 5_000 });
+await page.locator('.panel .body svg').first().waitFor({ timeout: 5_000 });
 console.log('ok: tone curve panel opens');
 
-// add a curve point via background click
-const svg = page.locator('.panel svg').first();
+// add a curve point via background click (skip the Chevron SVG in the header)
+const svg = page.locator('.panel .body svg').first();
 const box = await svg.boundingBox();
 // click upper-left so the added point lifts the curve off the identity line
 await page.mouse.click(box.x + box.width * .35, box.y + box.height * .25);
@@ -107,7 +107,7 @@ if (afterCurve === afterPreset) {
 }
 
 // history restore
-const historyEntries = await page.locator('button.history').count();
+const historyEntries = await page.locator('aside.left .history-entry').count();
 if (historyEntries < 2) {
   fail(`expected history entries to grow, got ${historyEntries}`);
 } else {

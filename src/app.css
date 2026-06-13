@@ -1,21 +1,44 @@
 :root {
-  --bg: #1d1d1f;
-  --bg-rail: #232325;
-  --bg-panel: #28282b;
-  --bg-elevated: #303033;
-  --bg-input: #1a1a1c;
-  --border: #3a3a3e;
-  --border-soft: #2f2f33;
-  --text: #ececef;
-  --text-dim: #8b8b92;
-  --text-muted: #5e5e66;
-  --accent: #4f9cf7;
-  --accent-soft: rgba(79, 156, 247, 0.16);
-  --accent-strong: rgba(79, 156, 247, 0.32);
+  /* Surfaces */
+  --bg: #131316;
+  --bg-rail: #1c1c20;
+  --bg-panel: #232328;
+  --bg-elevated: #2c2c32;
+  --bg-card: linear-gradient(180deg, #25252a 0%, #1f1f24 100%);
+  --bg-input: #17171a;
+
+  /* Lines */
+  --border: #3b3b42;
+  --border-soft: #2a2a30;
+
+  /* Type */
+  --text: #f3f3f5;
+  --text-dim: #9b9ba4;
+  --text-muted: #5f5f6a;
+
+  /* Brand */
+  --accent: #6aa8ff;
+  --accent-deep: #2b6dd0;
+  --accent-soft: rgba(106, 168, 255, 0.16);
+  --accent-strong: rgba(106, 168, 255, 0.32);
+  --accent-grad: linear-gradient(135deg, #6aa8ff 0%, #5076c4 100%);
+
+  /* Semantic */
   --warn: #e3a14b;
   --danger: #e36e5b;
-  --radius: 6px;
-  --radius-lg: 10px;
+
+  /* Geometry */
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 12px;
+
+  /* Shadow */
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset,
+                 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-lift: 0 8px 24px rgba(0, 0, 0, 0.45),
+                 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  /* Type */
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'SF Mono', Menlo, Monaco, Consolas, monospace;
 }
@@ -31,9 +54,11 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
+  font-feature-settings: 'cv11', 'ss01', 'ss02';
   font-size: 13px;
   line-height: 1.4;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   user-select: none;
 }
 
@@ -48,14 +73,19 @@ button {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 5px 10px;
+  padding: 6px 12px;
   cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  transition: background 0.15s ease, border-color 0.15s ease,
+              color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 button:hover:not(:disabled) {
   background: var(--accent-soft);
   border-color: var(--accent);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 button:disabled {
@@ -69,27 +99,29 @@ button.ghost {
 }
 
 button.ghost:hover:not(:disabled) {
-  background: var(--accent-soft);
+  background: var(--bg-elevated);
   border-color: transparent;
-  color: var(--accent);
+  color: var(--text);
 }
 
 button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent-grad);
+  border-color: transparent;
   color: #fff;
+  font-weight: 600;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset,
+              0 4px 12px rgba(106, 168, 255, 0.32);
 }
 
 button.primary:hover:not(:disabled) {
-  background: #5fa9ff;
-  border-color: #5fa9ff;
+  filter: brightness(1.1);
 }
 
 input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 3px;
+  height: 4px;
   border-radius: 2px;
   background: linear-gradient(90deg, var(--border) 0%, var(--border) 100%);
   outline: none;
@@ -99,26 +131,28 @@ input[type='range'] {
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--text);
-  border: none;
+  border: 2px solid var(--bg-rail);
   cursor: pointer;
-  transition: background 0.12s ease, transform 0.12s ease;
+  transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
 input[type='range']::-webkit-slider-thumb:hover {
   background: var(--accent);
   transform: scale(1.15);
+  box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
 input[type='range']::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--text);
-  border: none;
+  border: 2px solid var(--bg-rail);
   cursor: pointer;
 }
 
@@ -128,15 +162,17 @@ input[type='number'] {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
-  padding: 5px 8px;
+  padding: 6px 10px;
   font-family: var(--font);
   font-size: 12px;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
 }
 
 input[type='text']:focus,
 input[type='number']:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .scroll {

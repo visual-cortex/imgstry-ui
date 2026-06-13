@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Collapsible } from 'bits-ui';
   import type { Snippet } from 'svelte';
+  import Chevron from './Chevron.svelte';
 
   interface Props {
     title: string;
@@ -16,7 +17,7 @@
 
 <Collapsible.Root bind:open class="panel">
   <Collapsible.Trigger class="header">
-    <span class="caret">▸</span>
+    <Chevron {open} />
     <span class="title">{title}</span>
   </Collapsible.Trigger>
   <Collapsible.Content class="body">
@@ -33,41 +34,31 @@
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     justify-content: flex-start;
-    padding: 12px;
+    padding: 12px 14px;
     background: transparent;
     border: none;
     cursor: pointer;
     color: var(--text);
     font-family: inherit;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.4px;
     text-align: left;
+    transition: background 0.12s ease;
   }
 
   :global(.panel .header:hover) {
     background: var(--bg-elevated);
   }
 
-  :global(.panel .caret) {
-    color: var(--text-muted);
-    font-size: 9px;
-    transition: transform .15s ease;
-    display: inline-block;
-  }
-
-  :global(.panel[data-state='open'] .caret) {
-    transform: rotate(90deg);
-  }
-
   :global(.panel .body) {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 4px 12px 14px;
+    padding: 4px 14px 16px;
   }
 
   :global(.panel .body[hidden]) {

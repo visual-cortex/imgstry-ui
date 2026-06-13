@@ -197,14 +197,21 @@ class EditorState {
       this.histogram = engine.histogram;
 
       if (historyLabel) {
-        this.history = [
-          ...this.history,
-          {
-            id: `h${this._historyCounter++}`,
-            label: historyLabel,
-            adjustments: clone(settings),
-          },
-        ].slice(-50);
+        const snapshot = clone(settings);
+        const last = this.history.at(-1);
+        const unchanged =
+          last && JSON.stringify(last.adjustments) === JSON.stringify(snapshot);
+
+        if (!unchanged) {
+          this.history = [
+            ...this.history,
+            {
+              id: `h${this._historyCounter++}`,
+              label: historyLabel,
+              adjustments: snapshot,
+            },
+          ].slice(-50);
+        }
       }
     } finally {
       this.isRendering = false;
