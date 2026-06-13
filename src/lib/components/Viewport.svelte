@@ -4,7 +4,13 @@
 
   const MIN_ZOOM = 1;
   const MAX_ZOOM = 8;
-  const ZOOM_STEP = 0.0015;
+  // wheel: mouse wheel notches deliver deltaY ~100, this keeps one
+  // notch around +15%.
+  const WHEEL_STEP = 0.0015;
+  // pinch: trackpad gestures arrive as wheel + ctrlKey with tiny
+  // deltaY (1-4 per event), so each event needs a much bigger
+  // multiplier to track the fingers.
+  const PINCH_STEP = 0.02;
 
   let canvas: HTMLCanvasElement;
   let stage: HTMLDivElement;
@@ -52,8 +58,9 @@
   const onWheel = (event: WheelEvent) => {
     if (!editor.hasImage) return;
     event.preventDefault();
+    const step = event.ctrlKey ? PINCH_STEP : WHEEL_STEP;
     const delta = -event.deltaY;
-    const next = clamp(zoom * Math.exp(delta * ZOOM_STEP), MIN_ZOOM, MAX_ZOOM);
+    const next = clamp(zoom * Math.exp(delta * step), MIN_ZOOM, MAX_ZOOM);
     if (next !== zoom) {
       zoomAt(event.clientX, event.clientY, next);
     }
