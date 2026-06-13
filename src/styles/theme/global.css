@@ -18,6 +18,7 @@
   --color-tag-vintage:   var(--orange-500);
   --color-tag-modern:    var(--blue-400);
   --color-tag-bw:        var(--shade-200);
+  --color-tag-instagram: #e64980;
 
   /* Shadow */
   --shadow-card: 0 var(--ni-1) 0 rgba(255, 255, 255, 0.03) inset,
