@@ -2,14 +2,120 @@
   import { onDestroy, onMount } from 'svelte';
   import { editor } from '../editor/editor.svelte';
 
-  let canvas: HTMLCanvasElement;
-  let dragging = $state(false);
-  let zoom = $state<'fit' | '1:1' | '2:1'>('fit');
+  const MIN_ZOOM = 1;
+  const MAX_ZOOM = 8;
+  const ZOOM_STEP = 0.0015;
 
-  const zoomToScale = (mode: typeof zoom): string => {
-    if (mode === 'fit') return 'fit';
-    if (mode === '1:1') return '100%';
-    return '200%';
+  let canvas: HTMLCanvasElement;
+  let stage: HTMLDivElement;
+  let dragging = $state(false);
+  let zoom = $state(1);
+  let panX = $state(0);
+  let panY = $state(0);
+
+  const activePointers = new Map<number, { x: number; y: number }>();
+  let pinchStart: { distance: number; zoom: number } | null = null;
+  let panning = $state<{ id: number; x: number; y: number } | null>(null);
+
+  const clamp = (value: number, lo: number, hi: number) =>
+    value < lo ? lo : value > hi ? hi : value;
+
+  const constrain = () => {
+    if (zoom <= MIN_ZOOM) {
+      panX = 0;
+      panY = 0;
+      zoom = MIN_ZOOM;
+      return;
+    }
+    const rect = stage.getBoundingClientRect();
+    const maxX = (rect.width * (zoom - 1)) / 2;
+    const maxY = (rect.height * (zoom - 1)) / 2;
+    panX = clamp(panX, -maxX, maxX);
+    panY = clamp(panY, -maxY, maxY);
+  };
+
+  const zoomAt = (clientX: number, clientY: number, nextZoom: number) => {
+    if (!stage) return;
+    const rect = stage.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    // Keep the point under the cursor stationary on screen.
+    const px = clientX - cx;
+    const py = clientY - cy;
+    const ratio = nextZoom / zoom;
+    panX = panX * ratio + px * (1 - ratio);
+    panY = panY * ratio + py * (1 - ratio);
+    zoom = nextZoom;
+    constrain();
+  };
+
+  const onWheel = (event: WheelEvent) => {
+    if (!editor.hasImage) return;
+    event.preventDefault();
+    const delta = -event.deltaY;
+    const next = clamp(zoom * Math.exp(delta * ZOOM_STEP), MIN_ZOOM, MAX_ZOOM);
+    if (next !== zoom) {
+      zoomAt(event.clientX, event.clientY, next);
+    }
+  };
+
+  const onPointerDown = (event: PointerEvent) => {
+    if (!editor.hasImage) return;
+    stage.setPointerCapture(event.pointerId);
+    activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+    if (activePointers.size === 2) {
+      const [a, b] = [...activePointers.values()];
+      pinchStart = {
+        distance: Math.hypot(a.x - b.x, a.y - b.y),
+        zoom,
+      };
+      panning = null;
+    } else if (activePointers.size === 1 && zoom > MIN_ZOOM) {
+      panning = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    }
+  };
+
+  const onPointerMove = (event: PointerEvent) => {
+    if (!activePointers.has(event.pointerId)) return;
+    activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+    if (pinchStart && activePointers.size === 2) {
+      const [a, b] = [...activePointers.values()];
+      const distance = Math.hypot(a.x - b.x, a.y - b.y);
+      const next = clamp((distance / pinchStart.distance) * pinchStart.zoom, MIN_ZOOM, MAX_ZOOM);
+      const centerX = (a.x + b.x) / 2;
+      const centerY = (a.y + b.y) / 2;
+      zoomAt(centerX, centerY, next);
+      return;
+    }
+
+    if (panning && panning.id === event.pointerId) {
+      panX += event.clientX - panning.x;
+      panY += event.clientY - panning.y;
+      panning = { id: event.pointerId, x: event.clientX, y: event.clientY };
+      constrain();
+    }
+  };
+
+  const onPointerUp = (event: PointerEvent) => {
+    activePointers.delete(event.pointerId);
+    if (activePointers.size < 2) {
+      pinchStart = null;
+    }
+    if (panning && panning.id === event.pointerId) {
+      panning = null;
+    }
+    if (activePointers.size === 1 && zoom > MIN_ZOOM) {
+      const [only] = [...activePointers.entries()];
+      panning = { id: only[0], x: only[1].x, y: only[1].y };
+    }
+  };
+
+  const resetZoom = () => {
+    zoom = MIN_ZOOM;
+    panX = 0;
+    panY = 0;
   };
 
   onMount(() => {
@@ -30,8 +136,14 @@
       void editor.open(file);
     }
   };
+
+  const zoomLabel = $derived(`${Math.round(zoom * 100)}%`);
+  const transform = $derived(
+    `translate3d(${panX}px, ${panY}px, 0) scale(${zoom})`,
+  );
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <section
   aria-label="Image viewport"
   class:dragging
@@ -42,8 +154,22 @@
   ondragleave={() => (dragging = false)}
   ondrop={onDrop}
 >
-  <div class="canvas-stage" class:fit={zoom === 'fit'}>
-    <canvas bind:this={canvas} class:hidden={!editor.hasImage} class:one={zoom === '1:1'} class:two={zoom === '2:1'}></canvas>
+  <div
+    bind:this={stage}
+    class="canvas-stage"
+    onwheel={onWheel}
+    onpointerdown={onPointerDown}
+    onpointermove={onPointerMove}
+    onpointerup={onPointerUp}
+    onpointercancel={onPointerUp}
+    ondblclick={resetZoom}
+    style:--cursor={zoom > MIN_ZOOM ? (panning ? 'grabbing' : 'grab') : 'default'}
+  >
+    <canvas
+      bind:this={canvas}
+      class:hidden={!editor.hasImage}
+      style:transform
+    ></canvas>
 
     {#if !editor.hasImage}
       <div class="placeholder">
@@ -52,18 +178,14 @@
         <p class="kbd">supports JPG · PNG · WEBP · AVIF</p>
       </div>
     {/if}
-  </div>
 
-  {#if editor.hasImage}
-    <div class="toolbar">
-      <div class="group">
-        <button class="ghost" class:active={zoom === 'fit'} onclick={() => (zoom = 'fit')}>Fit</button>
-        <button class="ghost" class:active={zoom === '1:1'} onclick={() => (zoom = '1:1')}>1:1</button>
-        <button class="ghost" class:active={zoom === '2:1'} onclick={() => (zoom = '2:1')}>2:1</button>
+    {#if editor.hasImage && zoom > MIN_ZOOM}
+      <div class="zoom-badge">
+        <span class="value">{zoomLabel}</span>
+        <button class="reset" onclick={resetZoom} aria-label="Reset zoom">↺</button>
       </div>
-      <span class="zoom-readout">{zoomToScale(zoom)}</span>
-    </div>
-  {/if}
+    {/if}
+  </div>
 </section>
 
 <style>
@@ -85,38 +207,31 @@
     border: 2px dashed var(--accent);
     border-radius: var(--radius-lg);
     pointer-events: none;
+    z-index: 5;
   }
 
   .canvas-stage {
+    position: relative;
     flex: 1;
     min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 28px;
-    overflow: auto;
+    overflow: hidden;
+    touch-action: none;
+    cursor: var(--cursor, default);
   }
 
   canvas {
-    border-radius: 4px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
-    background: #000;
-  }
-
-  .canvas-stage.fit canvas {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-  }
-
-  canvas.one {
-    width: auto;
-    height: auto;
-  }
-
-  canvas.two {
-    transform: scale(2);
+    border-radius: 4px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    background: #000;
     transform-origin: center;
+    will-change: transform;
   }
 
   canvas.hidden {
@@ -148,34 +263,45 @@
     letter-spacing: .5px;
   }
 
-  .toolbar {
-    display: flex;
+  .zoom-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 6px 14px;
-    background: rgba(0, 0, 0, 0.4);
-    border-top: 1px solid var(--border);
-    backdrop-filter: blur(8px);
-  }
-
-  .group {
-    display: flex;
-    gap: 2px;
-  }
-
-  .group button {
-    font-size: 11px;
-    padding: 3px 10px;
-  }
-
-  .group button.active {
-    background: var(--accent-soft);
-    color: var(--accent);
-  }
-
-  .zoom-readout {
-    color: var(--text-dim);
+    gap: 4px;
+    padding: 4px 4px 4px 10px;
+    background: rgba(0, 0, 0, 0.55);
+    color: var(--text);
     font-family: var(--font-mono);
     font-size: 11px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    pointer-events: auto;
+  }
+
+  .zoom-badge .value {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .zoom-badge .reset {
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .zoom-badge .reset:hover {
+    background: var(--accent);
   }
 </style>
