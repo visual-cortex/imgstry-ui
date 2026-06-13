@@ -221,7 +221,7 @@
     display: flex;
     gap: 2px;
     padding: 2px;
-    background: var(--bg-input);
+    background: var(--color-bg-input);
     border-radius: 6px;
   }
 
@@ -231,11 +231,11 @@
     font-weight: 700;
     letter-spacing: 1px;
     padding: 4px;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
   }
 
   .channel.active {
-    background: var(--bg-elevated);
+    background: var(--color-bg-elevated);
   }
 
   .reset {
@@ -249,9 +249,9 @@
     height: auto;
     aspect-ratio: 1 / 1;
     display: block;
-    background: var(--bg-input);
-    border-radius: var(--radius);
-    border: 1px solid var(--border-soft);
+    background: var(--color-bg-input);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-soft);
     cursor: crosshair;
     touch-action: none;
   }

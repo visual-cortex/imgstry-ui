@@ -36,7 +36,7 @@
   }
 
   .empty {
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 13px;
     margin: 16px 0;
     text-align: center;
@@ -59,8 +59,8 @@
     padding: 10px 12px;
     background: transparent;
     border: none;
-    border-radius: var(--radius);
-    color: var(--text);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
     text-align: left;
     cursor: pointer;
     font-size: 13px;
@@ -68,20 +68,20 @@
   }
 
   .entry:hover {
-    background: var(--bg-elevated);
+    background: var(--color-bg-elevated);
   }
 
   .dot {
     width: 8px;
     height: 8px;
     border-radius: 999px;
-    background: var(--text-muted);
+    background: var(--color-text-muted);
     flex-shrink: 0;
   }
 
   .dot.head {
-    background: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
+    background: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-soft);
   }
 
   .label {
@@ -90,7 +90,7 @@
 
   .badge {
     font-size: 10px;
-    color: var(--accent);
+    color: var(--color-accent);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 700;

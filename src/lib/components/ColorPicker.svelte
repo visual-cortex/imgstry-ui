@@ -186,7 +186,7 @@
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: var(--text-dim);
+    color: var(--color-text-dim);
     font-weight: 600;
   }
 
@@ -197,7 +197,7 @@
   :global(.modes-list) {
     display: flex;
     gap: 2px;
-    background: var(--bg);
+    background: var(--color-bg);
     border-radius: 6px;
     padding: 2px;
   }
@@ -210,15 +210,15 @@
     font-size: 10px;
     font-weight: 600;
     letter-spacing: .5px;
-    color: var(--text-dim);
+    color: var(--color-text-dim);
     cursor: pointer;
     font-family: inherit;
     min-height: 28px;
   }
 
   :global(.mode-tab[data-state='active']) {
-    background: var(--accent-soft);
-    color: var(--accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
   }
 
   :global(.mode-tab[data-disabled]) {
@@ -237,8 +237,8 @@
     width: 44px;
     min-height: 44px;
     flex-shrink: 0;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
     overflow: hidden;
     cursor: pointer;
   }
@@ -256,10 +256,10 @@
 
   .hex-input {
     flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
     padding: 8px 10px;
     font-family: var(--font-mono);
     font-size: 13px;
@@ -270,7 +270,7 @@
 
   .hex-input:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--color-accent);
   }
 
   .channels {
@@ -286,13 +286,13 @@
     align-items: center;
     gap: 8px;
     font-size: 11px;
-    color: var(--text-dim);
+    color: var(--color-text-dim);
   }
 
   .channel .readout {
     text-align: right;
     font-variant-numeric: tabular-nums;
-    color: var(--text);
+    color: var(--color-text);
   }
 
   footer {

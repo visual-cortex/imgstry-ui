@@ -27,7 +27,7 @@
 
 <style>
   :global(.panel) {
-    border-bottom: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--color-border-soft);
   }
 
   :global(.panel .header) {
@@ -40,7 +40,7 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    color: var(--text);
+    color: var(--color-text);
     font-family: inherit;
     font-size: 11px;
     font-weight: 700;
@@ -51,7 +51,7 @@
   }
 
   :global(.panel .header:hover) {
-    background: var(--bg-elevated);
+    background: var(--color-bg-elevated);
   }
 
   :global(.panel .body) {

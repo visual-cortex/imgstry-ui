@@ -1,5 +1,6 @@
 <script lang="ts">
   import { editor } from '../editor/editor.svelte';
+  import ThemeToggle from './ThemeToggle.svelte';
 
   let fileInput: HTMLInputElement;
 
@@ -58,6 +59,7 @@
     <button class="ghost" disabled={!editor.hasImage} onclick={() => editor.resetAdjustments()}>
       Reset
     </button>
+    <ThemeToggle />
     <button class="primary" disabled={!editor.hasImage} onclick={() => editor.export('image/jpeg')}>
       Export
     </button>
@@ -70,8 +72,8 @@
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     padding: 8px 14px;
-    background: var(--bg-rail);
-    border-bottom: 1px solid var(--border);
+    background: var(--color-bg-rail);
+    border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
   }
 
@@ -82,7 +84,7 @@
   }
 
   .logo {
-    color: var(--accent);
+    color: var(--color-accent);
     font-size: 16px;
   }
 
@@ -94,7 +96,7 @@
   }
 
   .module {
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 1.5px;
@@ -106,22 +108,22 @@
     align-items: center;
     gap: 8px;
     justify-self: center;
-    color: var(--text-dim);
+    color: var(--color-text-dim);
     font-size: 12px;
   }
 
   .filename {
-    color: var(--text);
+    color: var(--color-text);
   }
 
   .meta {
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-family: var(--font-mono);
     font-size: 11px;
   }
 
   .status {
-    color: var(--accent);
+    color: var(--color-accent);
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -129,7 +131,7 @@
   }
 
   .status.warn {
-    color: var(--warn);
+    color: var(--color-warn);
   }
 
   .actions {

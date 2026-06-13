@@ -1,0 +1,31 @@
+/* Spacing and sizing primitives.
+ * --ni-X where X is the size in pixels (X / 16 in rem). */
+:root {
+  --ni-0:    0rem;
+  --ni-1:    0.0625rem;
+  --ni-2:    0.125rem;
+  --ni-3:    0.1875rem;
+  --ni-4:    0.25rem;
+  --ni-6:    0.375rem;
+  --ni-8:    0.5rem;
+  --ni-10:   0.625rem;
+  --ni-12:   0.75rem;
+  --ni-14:   0.875rem;
+  --ni-16:   1rem;
+  --ni-18:   1.125rem;
+  --ni-20:   1.25rem;
+  --ni-24:   1.5rem;
+  --ni-28:   1.75rem;
+  --ni-32:   2rem;
+  --ni-40:   2.5rem;
+  --ni-48:   3rem;
+  --ni-56:   3.5rem;
+  --ni-64:   4rem;
+  --ni-80:   5rem;
+  --ni-96:   6rem;
+  --ni-128:  8rem;
+  --ni-160: 10rem;
+  --ni-220: 13.75rem;
+  --ni-320: 20rem;
+  --ni-480: 30rem;
+}

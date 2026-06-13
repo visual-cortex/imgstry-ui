@@ -57,8 +57,8 @@
     flex-direction: column;
     gap: 6px;
     padding: 8px 10px;
-    background: linear-gradient(to top, var(--bg-rail), color-mix(in srgb, var(--bg-rail) 92%, transparent));
-    border-top: 1px solid var(--border);
+    background: linear-gradient(to top, var(--color-bg-rail), color-mix(in srgb, var(--color-bg-rail) 92%, transparent));
+    border-top: 1px solid var(--color-border);
     backdrop-filter: blur(8px);
   }
 
@@ -85,8 +85,8 @@
     font-size: 11px;
     font-weight: 600;
     letter-spacing: .3px;
-    color: var(--text-dim);
-    background: var(--bg-elevated);
+    color: var(--color-text-dim);
+    background: var(--color-bg-elevated);
     border: 1px solid transparent;
     border-radius: 999px;
     cursor: pointer;
@@ -94,13 +94,13 @@
   }
 
   .chip.dirty {
-    color: var(--accent);
+    color: var(--color-accent);
   }
 
   .chip.active {
-    color: var(--text);
-    background: var(--accent-soft);
-    border-color: var(--accent);
+    color: var(--color-text);
+    background: var(--color-accent-soft);
+    border-color: var(--color-accent);
   }
 
   .slider-row {

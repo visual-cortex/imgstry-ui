@@ -29,11 +29,11 @@
     transition: transform .18s ease;
     transform: rotate(-90deg);
     flex-shrink: 0;
-    color: var(--text-dim);
+    color: var(--color-text-dim);
   }
 
   .chevron.open {
     transform: rotate(0deg);
-    color: var(--text);
+    color: var(--color-text);
   }
 </style>

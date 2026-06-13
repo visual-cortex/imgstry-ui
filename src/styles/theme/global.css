@@ -1,0 +1,28 @@
+/* Semantic tokens shared across modes. */
+:root {
+  /* Brand */
+  --color-accent:        var(--blue-400);
+  --color-accent-strong: var(--blue-500);
+  --color-accent-deep:   var(--blue-600);
+  --color-accent-soft:   color-mix(in srgb, var(--color-accent) 18%, transparent);
+  --color-accent-bright: color-mix(in srgb, var(--color-accent) 32%, transparent);
+  --color-accent-grad:   linear-gradient(135deg, var(--blue-400) 0%, var(--blue-600) 100%);
+
+  /* State */
+  --color-warn:   var(--orange-500);
+  --color-danger: var(--red-500);
+  --color-ok:     var(--green-500);
+
+  /* Preset category hues (shared across desktop + mobile) */
+  --color-tag-cinematic: var(--purple-300);
+  --color-tag-vintage:   var(--orange-500);
+  --color-tag-modern:    var(--blue-400);
+  --color-tag-bw:        var(--shade-200);
+
+  /* Shadow */
+  --shadow-card: 0 var(--ni-1) 0 rgba(255, 255, 255, 0.03) inset,
+                 0 var(--ni-1) var(--ni-3) rgba(0, 0, 0, 0.35);
+  --shadow-lift: 0 var(--ni-8) var(--ni-24) rgba(0, 0, 0, 0.45),
+                 0 0 0 var(--ni-1) rgba(255, 255, 255, 0.04);
+  --shadow-accent: 0 var(--ni-4) var(--ni-12) color-mix(in srgb, var(--color-accent) 32%, transparent);
+}

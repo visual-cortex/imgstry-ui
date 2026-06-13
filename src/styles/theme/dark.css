@@ -1,0 +1,24 @@
+/* Dark mode surfaces and text. */
+:root,
+[data-theme='dark'] {
+  --color-bg:         var(--shade-930);
+  --color-bg-rail:    var(--shade-910);
+  --color-bg-panel:   var(--shade-900);
+  --color-bg-elevated: var(--shade-800);
+  --color-bg-input:   var(--shade-940);
+  --color-bg-card:    linear-gradient(180deg, var(--shade-900) 0%, var(--shade-910) 100%);
+  --color-bg-overlay: rgba(0, 0, 0, 0.55);
+
+  --color-border:      var(--shade-700);
+  --color-border-soft: var(--shade-800);
+
+  --color-text:        var(--shade-30);
+  --color-text-dim:    var(--shade-200);
+  --color-text-muted:  var(--shade-400);
+
+  --color-viewport-stage: radial-gradient(
+    ellipse at center,
+    var(--shade-900) 0%,
+    var(--shade-1000) 100%
+  );
+}

@@ -6,15 +6,10 @@
   const { label }: Props = $props();
 </script>
 
-<div class="subhead">{label}</div>
+<div class="subhead eyebrow-muted">{label}</div>
 
 <style>
   .subhead {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1.3px;
-    margin: 8px 0 -2px;
+    margin: var(--space-md) 0 var(--space-xxs);
   }
 </style>

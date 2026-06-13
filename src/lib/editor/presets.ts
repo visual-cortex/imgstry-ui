@@ -1,11 +1,24 @@
 import type { Adjustments } from './adjustments';
 
+export type PresetGroup = 'Cinematic' | 'Vintage' | 'B&W' | 'Modern';
+
 export interface Preset {
   id: string;
   name: string;
-  group: 'Cinematic' | 'Vintage' | 'B&W' | 'Modern';
+  group: PresetGroup;
   patch: Partial<Adjustments>;
 }
+
+/**
+ * Single source of truth for the colored swatch each preset group uses
+ * across the desktop rail and the mobile tools sheet.
+ */
+export const GROUP_HUE: Record<PresetGroup, string> = {
+  Cinematic: 'var(--color-tag-cinematic)',
+  Vintage:   'var(--color-tag-vintage)',
+  Modern:    'var(--color-tag-modern)',
+  'B&W':     'var(--color-tag-bw)',
+};
 
 export const PRESETS: Preset[] = [
   {

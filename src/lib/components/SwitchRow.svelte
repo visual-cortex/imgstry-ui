@@ -30,7 +30,7 @@
     justify-content: space-between;
     padding: 8px 0;
     cursor: pointer;
-    color: var(--text-dim);
+    color: var(--color-text-dim);
     font-size: 12px;
   }
 
@@ -40,23 +40,23 @@
   }
 
   .label {
-    color: var(--text-dim);
+    color: var(--color-text-dim);
   }
 
   :global(.switch) {
     position: relative;
     width: 36px;
     height: 20px;
-    background: var(--bg-input);
+    background: var(--color-bg-input);
     border-radius: 999px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease;
   }
 
   :global(.switch[data-state='checked']) {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: var(--color-accent);
+    border-color: var(--color-accent);
   }
 
   :global(.switch[data-disabled]) {
@@ -67,7 +67,7 @@
     display: block;
     width: 14px;
     height: 14px;
-    background: var(--text);
+    background: var(--color-text);
     border-radius: 999px;
     transform: translate3d(2px, 2px, 0);
     transition: transform 0.15s ease;

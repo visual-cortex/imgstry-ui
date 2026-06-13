@@ -1,0 +1,21 @@
+/* Neutral ramp; surfaces and text. */
+:root {
+  --shade-10:  #fefefe;
+  --shade-30:  #f6f6f7;
+  --shade-50:  #ebecee;
+  --shade-80:  #d8dcde;
+  --shade-100: #c8ccd0;
+  --shade-200: #aab0b6;
+  --shade-300: #8b929a;
+  --shade-400: #6f777e;
+  --shade-500: #5f676e;
+  --shade-600: #4d545b;
+  --shade-700: #3a3f44;
+  --shade-800: #2c3035;
+  --shade-900: #232328;
+  --shade-910: #1d1d22;
+  --shade-920: #18181c;
+  --shade-930: #131316;
+  --shade-940: #0d0d10;
+  --shade-1000: #050507;
+}

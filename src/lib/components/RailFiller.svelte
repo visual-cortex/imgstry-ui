@@ -72,8 +72,8 @@
   }
 
   .cell {
-    border-right: 1px solid var(--border-soft);
-    border-bottom: 1px solid var(--border-soft);
+    border-right: 1px solid var(--color-border-soft);
+    border-bottom: 1px solid var(--color-border-soft);
     aspect-ratio: 1;
     background:
       radial-gradient(
@@ -101,7 +101,7 @@
     font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 1.2px;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-weight: 600;
   }
 
@@ -109,12 +109,12 @@
     margin: 0;
     font-family: var(--font-mono);
     font-size: 13px;
-    color: var(--text);
+    color: var(--color-text);
     font-variant-numeric: tabular-nums;
   }
 
   .of {
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     margin-left: 4px;
     font-size: 11px;
   }
@@ -122,7 +122,7 @@
   .cta {
     position: relative;
     margin: 0;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 11px;
     line-height: 1.5;
     text-align: center;

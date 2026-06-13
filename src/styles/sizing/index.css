@@ -1,0 +1,23 @@
+/* Semantic sizing built from numeric increments. */
+:root {
+  --radius-xs:  var(--ni-2);
+  --radius-sm:  var(--ni-4);
+  --radius-md:  var(--ni-8);
+  --radius-lg:  var(--ni-12);
+  --radius-xl:  var(--ni-16);
+  --radius-pill: 999rem;
+
+  --border-thin:    var(--ni-1);
+  --border-regular: var(--ni-2);
+  --border-thick:   var(--ni-4);
+
+  --space-xxs: var(--ni-2);
+  --space-xs:  var(--ni-4);
+  --space-sm:  var(--ni-6);
+  --space-md:  var(--ni-8);
+  --space-lg:  var(--ni-12);
+  --space-xl:  var(--ni-16);
+  --space-2xl: var(--ni-24);
+  --space-3xl: var(--ni-32);
+  --space-4xl: var(--ni-48);
+}

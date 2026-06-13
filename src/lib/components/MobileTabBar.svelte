@@ -51,8 +51,8 @@
   .tabbar {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    background: var(--bg-rail);
-    border-top: 1px solid var(--border);
+    background: var(--color-bg-rail);
+    border-top: 1px solid var(--color-border);
     padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
     gap: 4px;
     z-index: 50;
@@ -68,16 +68,16 @@
     font-size: 10px;
     font-weight: 600;
     letter-spacing: .5px;
-    color: var(--text-muted);
-    border-radius: var(--radius);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-md);
     background: transparent;
     border: none;
     min-height: 50px;
   }
 
   .tab.active {
-    background: var(--accent-soft);
-    color: var(--accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
   }
 
   .tab .icon {

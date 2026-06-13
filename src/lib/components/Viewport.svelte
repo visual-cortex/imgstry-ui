@@ -203,15 +203,14 @@
     align-items: stretch;
     min-width: 0;
     min-height: 0;
-    background:
-      radial-gradient(ellipse at center, #232326 0%, #131315 100%);
+    background: var(--color-viewport-stage);
   }
 
   section.dragging::after {
     content: '';
     position: absolute;
     inset: 16px;
-    border: 2px dashed var(--accent);
+    border: 2px dashed var(--color-accent);
     border-radius: var(--radius-lg);
     pointer-events: none;
     z-index: 5;
@@ -247,14 +246,14 @@
 
   .placeholder {
     text-align: center;
-    color: var(--text-dim);
+    color: var(--color-text-dim);
     pointer-events: none;
   }
 
   .title {
     font-size: 20px;
     margin: 0 0 6px;
-    color: var(--text);
+    color: var(--color-text);
     font-weight: 500;
   }
 
@@ -264,7 +263,7 @@
   }
 
   .kbd {
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 11px;
     margin: 0;
     letter-spacing: .5px;
@@ -279,7 +278,7 @@
     gap: 4px;
     padding: 4px 4px 4px 10px;
     background: rgba(0, 0, 0, 0.55);
-    color: var(--text);
+    color: var(--color-text);
     font-family: var(--font-mono);
     font-size: 11px;
     border-radius: 999px;
@@ -298,7 +297,7 @@
     border-radius: 999px;
     border: none;
     background: rgba(255, 255, 255, 0.08);
-    color: var(--text);
+    color: var(--color-text);
     font-size: 14px;
     line-height: 1;
     cursor: pointer;
@@ -309,6 +308,6 @@
   }
 
   .zoom-badge .reset:hover {
-    background: var(--accent);
+    background: var(--color-accent);
   }
 </style>

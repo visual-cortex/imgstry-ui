@@ -43,8 +43,8 @@
     right: 0;
     bottom: 0;
     z-index: 91;
-    background: color-mix(in srgb, var(--bg-rail) 96%, transparent);
-    border-top: 1px solid var(--border);
+    background: color-mix(in srgb, var(--color-bg-rail) 96%, transparent);
+    border-top: 1px solid var(--color-border);
     border-top-left-radius: var(--radius-lg);
     border-top-right-radius: var(--radius-lg);
     max-height: 55vh;
@@ -60,7 +60,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 16px;
-    border-bottom: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--color-border-soft);
   }
 
   :global(.sheet-header::before) {
@@ -72,14 +72,14 @@
     width: 36px;
     height: 4px;
     border-radius: 999px;
-    background: var(--border);
+    background: var(--color-border);
   }
 
   :global(.sheet-title) {
     margin: 0;
     font-size: 13px;
     font-weight: 600;
-    color: var(--text);
+    color: var(--color-text);
     text-transform: uppercase;
     letter-spacing: 1.5px;
   }
@@ -87,7 +87,7 @@
   :global(.sheet-close) {
     background: transparent;
     border: none;
-    color: var(--text-dim);
+    color: var(--color-text-dim);
     font-size: 18px;
     cursor: pointer;
     width: 36px;
@@ -99,8 +99,8 @@
   }
 
   :global(.sheet-close:hover) {
-    color: var(--text);
-    background: var(--bg-elevated);
+    color: var(--color-text);
+    background: var(--color-bg-elevated);
   }
 
   :global(.sheet-body) {

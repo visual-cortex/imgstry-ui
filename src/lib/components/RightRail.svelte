@@ -105,8 +105,8 @@
 
 <style>
   aside.right {
-    background: var(--bg-rail);
-    border-left: 1px solid var(--border);
+    background: var(--color-bg-rail);
+    border-left: 1px solid var(--color-border);
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -121,18 +121,18 @@
     justify-content: space-between;
     gap: 8px;
     padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--border-soft);
+    border-top: 1px solid var(--color-border-soft);
     background: linear-gradient(to top, rgba(0, 0, 0, 0.18), transparent);
   }
 
   .reset-all {
     font-size: 11px;
     padding: 6px 10px;
-    color: var(--text-dim);
+    color: var(--color-text-dim);
   }
 
   .reset-all:hover:not(:disabled) {
-    color: var(--danger);
+    color: var(--color-danger);
   }
 
   .mark {
@@ -141,7 +141,7 @@
     gap: 6px;
     font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     letter-spacing: .5px;
   }
 
@@ -149,7 +149,7 @@
     width: 5px;
     height: 5px;
     border-radius: 999px;
-    background: var(--accent);
-    box-shadow: 0 0 6px var(--accent);
+    background: var(--color-accent);
+    box-shadow: 0 0 6px var(--color-accent);
   }
 </style>

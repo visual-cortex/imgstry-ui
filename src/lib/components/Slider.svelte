@@ -28,19 +28,19 @@
   const fill = $derived.by(() => {
     if (!bipolar) {
       const ratio = (value - min) / (max - min);
-      return `linear-gradient(90deg, var(--accent) 0%, var(--accent) ${ratio * 100}%, var(--border) ${ratio * 100}%, var(--border) 100%)`;
+      return `linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent) ${ratio * 100}%, var(--color-border) ${ratio * 100}%, var(--color-border) 100%)`;
     }
     const center = -min / (max - min);
     const current = (value - min) / (max - min);
     const left = Math.min(center, current);
     const right = Math.max(center, current);
     return `linear-gradient(90deg,
-      var(--border) 0%,
-      var(--border) ${left * 100}%,
-      var(--accent) ${left * 100}%,
-      var(--accent) ${right * 100}%,
-      var(--border) ${right * 100}%,
-      var(--border) 100%
+      var(--color-border) 0%,
+      var(--color-border) ${left * 100}%,
+      var(--color-accent) ${left * 100}%,
+      var(--color-accent) ${right * 100}%,
+      var(--color-border) ${right * 100}%,
+      var(--color-border) 100%
     )`;
   });
 </script>
@@ -81,16 +81,16 @@
   }
 
   .name {
-    color: var(--text-dim);
+    color: var(--color-text-dim);
   }
 
   .value {
     font-variant-numeric: tabular-nums;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-family: var(--font-mono);
   }
 
   .value.active {
-    color: var(--accent);
+    color: var(--color-accent);
   }
 </style>

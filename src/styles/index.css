@@ -1,0 +1,16 @@
+@import './palette/shade.css';
+@import './palette/blue.css';
+@import './palette/purple.css';
+@import './palette/orange.css';
+@import './palette/green.css';
+@import './palette/red.css';
+
+@import './numeric-increments/index.css';
+@import './sizing/index.css';
+@import './typography/index.css';
+@import './transitions/index.css';
+@import './layers/index.css';
+
+@import './theme/global.css';
+@import './theme/dark.css';
+@import './theme/light.css';

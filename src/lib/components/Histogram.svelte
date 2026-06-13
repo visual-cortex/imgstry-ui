@@ -69,8 +69,8 @@
   canvas {
     width: 100%;
     height: auto;
-    background: radial-gradient(ellipse at center, #1c1c20 0%, #131316 100%);
+    background: var(--color-bg-input);
     border-radius: var(--radius-sm);
-    border: 1px solid var(--border-soft);
+    border: 1px solid var(--color-border-soft);
   }
 </style>

@@ -1,0 +1,27 @@
+/* Light mode override. */
+[data-theme='light'] {
+  --color-bg:         var(--shade-30);
+  --color-bg-rail:    var(--shade-10);
+  --color-bg-panel:   var(--shade-50);
+  --color-bg-elevated: var(--shade-80);
+  --color-bg-input:   var(--shade-10);
+  --color-bg-card:    linear-gradient(180deg, var(--shade-10) 0%, var(--shade-30) 100%);
+  --color-bg-overlay: rgba(20, 20, 25, 0.32);
+
+  --color-border:      var(--shade-100);
+  --color-border-soft: var(--shade-80);
+
+  --color-text:        var(--shade-900);
+  --color-text-dim:    var(--shade-600);
+  --color-text-muted:  var(--shade-400);
+
+  --color-viewport-stage: radial-gradient(
+    ellipse at center,
+    var(--shade-50) 0%,
+    var(--shade-80) 100%
+  );
+
+  --shadow-card: 0 var(--ni-1) var(--ni-3) rgba(0, 0, 0, 0.12);
+  --shadow-lift: 0 var(--ni-8) var(--ni-24) rgba(0, 0, 0, 0.18),
+                 0 0 0 var(--ni-1) rgba(0, 0, 0, 0.06);
+}

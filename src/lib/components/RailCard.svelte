@@ -29,9 +29,9 @@
 
 <style>
   .card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-soft);
+    border-radius: var(--radius-md);
     box-shadow: var(--shadow-card);
     display: flex;
     flex-direction: column;
@@ -53,7 +53,7 @@
     flex: 1;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
+    scrollbar-color: var(--color-border) transparent;
   }
 
   .card.grow .body::-webkit-scrollbar {
@@ -61,7 +61,7 @@
   }
 
   .card.grow .body::-webkit-scrollbar-thumb {
-    background: var(--border);
+    background: var(--color-border);
     border-radius: 3px;
   }
 
@@ -70,7 +70,7 @@
     align-items: center;
     gap: 8px;
     padding: 10px 12px 8px;
-    border-bottom: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--color-border-soft);
     background: rgba(255, 255, 255, 0.015);
   }
 
@@ -78,7 +78,7 @@
     margin: 0;
     font-size: 10px;
     font-weight: 700;
-    color: var(--text);
+    color: var(--color-text);
     text-transform: uppercase;
     letter-spacing: 1.4px;
     flex: 1;
@@ -87,8 +87,8 @@
   .badge {
     font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--text-dim);
-    background: var(--bg-input);
+    color: var(--color-text-dim);
+    background: var(--color-bg-input);
     padding: 2px 6px;
     border-radius: 999px;
     font-weight: 500;

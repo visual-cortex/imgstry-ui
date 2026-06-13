@@ -1,0 +1,37 @@
+:root {
+  --font-sans:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  --font-mono:
+    'SF Mono',
+    Menlo,
+    Monaco,
+    Consolas,
+    'Liberation Mono',
+    monospace;
+
+  --font-size-xxs: 0.625rem;   /* 10px */
+  --font-size-xs:  0.6875rem;  /* 11px */
+  --font-size-sm:  0.75rem;    /* 12px */
+  --font-size-md:  0.8125rem;  /* 13px */
+  --font-size-lg:  0.875rem;   /* 14px */
+  --font-size-xl:  1rem;       /* 16px */
+  --font-size-2xl: 1.25rem;    /* 20px */
+
+  --font-weight-regular: 400;
+  --font-weight-medium:  500;
+  --font-weight-semi:    600;
+  --font-weight-bold:    700;
+
+  --letter-spacing-tight:  -0.005em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide:   0.06em;
+  --letter-spacing-mega:   0.1em;
+
+  --line-height-tight: 1.25;
+  --line-height-base:  1.45;
+}

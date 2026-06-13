@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Collapsible } from 'bits-ui';
   import { editor } from '../editor/editor.svelte';
-  import { PRESETS, type Preset } from '../editor/presets';
+  import { GROUP_HUE, PRESETS, type Preset } from '../editor/presets';
   import Chevron from './Chevron.svelte';
   import Histogram from './Histogram.svelte';
   import RailCard from './RailCard.svelte';
@@ -18,12 +18,7 @@
     Object.fromEntries(Object.keys(grouped).map((group) => [group, true])),
   );
 
-  const groupHues: Record<string, string> = {
-    Cinematic: '#c98ee5',
-    Vintage:   '#e3a14b',
-    Modern:    '#6aa8ff',
-    'B&W':     '#a5a5a8',
-  };
+  const groupHues = GROUP_HUE;
 </script>
 
 <aside class="left scroll">
@@ -36,7 +31,7 @@
       <Collapsible.Root bind:open={groupOpen[group]} class="group">
         <Collapsible.Trigger class="group-trigger">
           <span class="group-chev"><Chevron open={groupOpen[group]} /></span>
-          <span class="group-dot" style:background={groupHues[group] ?? 'var(--accent)'}></span>
+          <span class="group-dot" style:background={groupHues[group as keyof typeof groupHues] ?? 'var(--color-accent)'}></span>
           <span class="group-name">{group}</span>
           <span class="group-count">{presets.length}</span>
         </Collapsible.Trigger>
@@ -48,7 +43,7 @@
                   class="preset"
                   disabled={!editor.hasImage}
                   onclick={() => editor.applyPreset(preset.patch, preset.name)}
-                  style:--swatch={groupHues[group] ?? 'var(--accent)'}
+                  style:--swatch={groupHues[group as keyof typeof groupHues] ?? 'var(--color-accent)'}
                 >
                   <span class="swatch"></span>
                   <span class="name">{preset.name}</span>
@@ -92,8 +87,8 @@
 
 <style>
   aside.left {
-    background: var(--bg-rail);
-    border-right: 1px solid var(--border);
+    background: var(--color-bg-rail);
+    border-right: 1px solid var(--color-border);
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -122,7 +117,7 @@
     padding: 6px 8px;
     background: transparent;
     border: none;
-    color: var(--text);
+    color: var(--color-text);
     cursor: pointer;
     font-family: inherit;
     text-align: left;
@@ -130,7 +125,7 @@
   }
 
   :global(.left .group-trigger:hover) {
-    background: var(--bg-elevated);
+    background: var(--color-bg-elevated);
   }
 
   :global(.left .group-chev) {
@@ -152,13 +147,13 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.1px;
-    color: var(--text);
+    color: var(--color-text);
   }
 
   :global(.left .group-count) {
     font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
   }
 
   :global(.left .group-body) {
@@ -187,7 +182,7 @@
     background: transparent;
     border: 1px solid transparent;
     border-radius: var(--radius-sm);
-    color: var(--text-dim);
+    color: var(--color-text-dim);
     font-size: 12px;
     text-align: left;
     cursor: pointer;
@@ -195,8 +190,8 @@
   }
 
   .preset:hover:not(:disabled) {
-    color: var(--text);
-    background: var(--bg-elevated);
+    color: var(--color-text);
+    background: var(--color-bg-elevated);
   }
 
   .preset:disabled {
@@ -226,14 +221,14 @@
   }
 
   .empty {
-    color: var(--text);
+    color: var(--color-text);
     font-size: 12px;
     font-weight: 600;
     margin: 0;
   }
 
   .empty-hint {
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 11px;
     margin: 0;
     line-height: 1.4;
@@ -256,8 +251,8 @@
     width: 1px;
     background: linear-gradient(
       to bottom,
-      var(--border) 0%,
-      var(--border) 50%,
+      var(--color-border) 0%,
+      var(--color-border) 50%,
       transparent 100%
     );
   }
@@ -270,10 +265,10 @@
   .tip {
     margin-top: auto;
     padding: 10px 8px 4px;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 10px;
     line-height: 1.5;
-    border-top: 1px dashed var(--border-soft);
+    border-top: 1px dashed var(--color-border-soft);
   }
 
   .history-entry {
@@ -285,7 +280,7 @@
     padding: 6px 8px;
     background: transparent;
     border: none;
-    color: var(--text-dim);
+    color: var(--color-text-dim);
     font-size: 12px;
     text-align: left;
     cursor: pointer;
@@ -294,12 +289,12 @@
   }
 
   .history-entry:hover {
-    background: var(--bg-elevated);
-    color: var(--text);
+    background: var(--color-bg-elevated);
+    color: var(--color-text);
   }
 
   .current .history-entry {
-    color: var(--text);
+    color: var(--color-text);
   }
 
   .rail {
@@ -315,18 +310,18 @@
     width: 8px;
     height: 8px;
     border-radius: 999px;
-    background: var(--text-muted);
+    background: var(--color-text-muted);
     z-index: 1;
     transition: background 0.12s ease, box-shadow 0.12s ease;
     flex-shrink: 0;
     margin-top: 6px;
-    box-shadow: 0 0 0 2px var(--bg-card);
+    box-shadow: 0 0 0 2px var(--color-bg-card);
   }
 
   .node.head {
-    background: var(--accent);
-    box-shadow: 0 0 0 2px var(--bg-card),
-                0 0 0 5px var(--accent-soft);
+    background: var(--color-accent);
+    box-shadow: 0 0 0 2px var(--color-bg-card),
+                0 0 0 5px var(--color-accent-soft);
   }
 
   .label {
@@ -337,7 +332,7 @@
     align-self: center;
     font-family: var(--font-mono);
     font-size: 9px;
-    color: var(--accent);
+    color: var(--color-accent);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 700;
