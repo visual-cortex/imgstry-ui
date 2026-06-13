@@ -89,6 +89,7 @@
     font-size: 14px;
     font-weight: 600;
     letter-spacing: 0.6px;
+    line-height: 1;
   }
 
   .module {
@@ -96,6 +97,7 @@
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 1.5px;
+    line-height: 1;
     margin-left: 4px;
   }
 

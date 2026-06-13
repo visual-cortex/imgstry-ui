@@ -6,6 +6,7 @@
   import MobileSheet from './lib/components/MobileSheet.svelte';
   import MobileTabBar from './lib/components/MobileTabBar.svelte';
   import MobileTools from './lib/components/MobileTools.svelte';
+  import PwaStatus from './lib/components/PwaStatus.svelte';
   import RightRail from './lib/components/RightRail.svelte';
   import ToneCurve from './lib/components/ToneCurve.svelte';
   import TopBar from './lib/components/TopBar.svelte';
@@ -60,6 +61,8 @@
     <MobileTabBar />
   </div>
 
+  <PwaStatus />
+
   <MobileSheet
     open={mobile.open && mobile.activePane !== 'adjust'}
     title={mobile.activePane === 'adjust' ? '' : titleFor[mobile.activePane]}
@@ -92,7 +95,7 @@
     grid-template-columns: 220px 1fr 320px;
     flex: 1;
     min-height: 0;
-    background: var(--bg);
+    background: var(--color-bg);
   }
 
   .left,
