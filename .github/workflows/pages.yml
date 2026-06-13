@@ -1,0 +1,72 @@
+name: pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout imgstry-ui
+        uses: actions/checkout@v4
+        with:
+          path: imgstry-ui
+
+      - name: Checkout imgstry engine
+        uses: actions/checkout@v4
+        with:
+          repository: visual-cortex/imgstry
+          path: imgstry
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: imgstry-ui/package-lock.json
+
+      - name: Install imgstry engine dependencies
+        working-directory: imgstry
+        run: npm ci
+
+      - name: Restore dependencies
+        working-directory: imgstry-ui
+        run: npm ci
+
+      - name: Build
+        working-directory: imgstry-ui
+        env:
+          GH_PAGES_BASE: /${{ github.event.repository.name }}/
+        run: npm run build
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: imgstry-ui/dist
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
