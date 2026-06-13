@@ -1,5 +1,6 @@
 <script lang="ts">
   import { editor } from '../editor/editor.svelte';
+  import Logo from './Logo.svelte';
   import ThemeToggle from './ThemeToggle.svelte';
 
   let fileInput: HTMLInputElement;
@@ -17,7 +18,7 @@
 
 <header>
   <div class="brand">
-    <span class="logo">◐</span>
+    <Logo size={26} spin={editor.isRendering} />
     <h1>imgstry</h1>
     <span class="module">DEVELOP</span>
   </div>
@@ -79,13 +80,8 @@
 
   .brand {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 10px;
-  }
-
-  .logo {
-    color: var(--color-accent);
-    font-size: 16px;
   }
 
   h1 {
