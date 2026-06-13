@@ -182,6 +182,10 @@ class EditorState {
       engine.invert();
     }
 
+    if (settings.tint) {
+      engine.tint(settings.tint);
+    }
+
     if (settings.sharpen) {
       engine.convolve(sharpenKernel(settings.sharpen));
     }

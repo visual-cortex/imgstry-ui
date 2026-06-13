@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Adjustments } from '../editor/adjustments';
   import { editor } from '../editor/editor.svelte';
+  import ColorPicker from './ColorPicker.svelte';
   import Slider from './Slider.svelte';
 
   const set = <K extends keyof Adjustments>(key: K) =>
@@ -33,6 +34,16 @@
     <Slider label="Sharpen" min={0} max={100} value={editor.adjustments.sharpen} {disabled} onchange={set('sharpen')} />
     <Slider label="Blur" min={0} max={10} value={editor.adjustments.blur} {disabled} onchange={set('blur')} />
     <Slider label="Noise" min={0} max={100} value={editor.adjustments.noise} {disabled} onchange={set('noise')} />
+  </section>
+
+  <section>
+    <h2>Tint</h2>
+    <ColorPicker
+      label="Color"
+      value={editor.adjustments.tint}
+      {disabled}
+      onchange={(hex) => set('tint')(hex)}
+    />
   </section>
 
   <section class="toggles">

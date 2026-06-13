@@ -11,6 +11,7 @@ export interface Adjustments {
   blur: number;
   blackAndWhite: boolean;
   invert: boolean;
+  tint: string | null;
 }
 
 export const DEFAULT_ADJUSTMENTS: Adjustments = {
@@ -26,6 +27,7 @@ export const DEFAULT_ADJUSTMENTS: Adjustments = {
   blur: 0,
   blackAndWhite: false,
   invert: false,
+  tint: null,
 };
 
 export const isPristine = (adjustments: Adjustments): boolean =>
