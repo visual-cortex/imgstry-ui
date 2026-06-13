@@ -1,19 +1,21 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import LeftRail from './lib/components/LeftRail.svelte';
+  import MobileAdjustStrip from './lib/components/MobileAdjustStrip.svelte';
+  import MobileHistory from './lib/components/MobileHistory.svelte';
   import MobileSheet from './lib/components/MobileSheet.svelte';
   import MobileTabBar from './lib/components/MobileTabBar.svelte';
+  import MobileTools from './lib/components/MobileTools.svelte';
   import RightRail from './lib/components/RightRail.svelte';
+  import ToneCurve from './lib/components/ToneCurve.svelte';
   import TopBar from './lib/components/TopBar.svelte';
   import Viewport from './lib/components/Viewport.svelte';
-  import ToneCurve from './lib/components/ToneCurve.svelte';
   import { editor } from './lib/editor/editor.svelte';
-  import { mobile, type MobilePane } from './lib/editor/mobile.svelte';
+  import { type MobilePane, mobile } from './lib/editor/mobile.svelte';
 
-  const titleFor: Record<MobilePane, string> = {
-    adjust: 'Adjust',
+  const titleFor: Record<Exclude<MobilePane, 'adjust'>, string> = {
     curve: 'Tone Curve',
-    presets: 'Presets',
+    tools: 'Tools',
     history: 'History',
   };
 
@@ -49,25 +51,31 @@
     <div class="right"><RightRail /></div>
   </main>
 
+  <!-- inline adjust strip lives above the tab bar on mobile -->
+  <div class="mobile-strip">
+    <MobileAdjustStrip />
+  </div>
+
   <div class="tabbar">
     <MobileTabBar />
   </div>
 
   <MobileSheet
-    open={mobile.open}
-    title={titleFor[mobile.activePane]}
-    onclose={() => (mobile.open = false)}
+    open={mobile.open && mobile.activePane !== 'adjust'}
+    title={mobile.activePane === 'adjust' ? '' : titleFor[mobile.activePane]}
+    onclose={() => {
+      mobile.open = false;
+      mobile.activePane = 'adjust';
+    }}
   >
-    {#if mobile.activePane === 'adjust'}
-      <RightRail />
-    {:else if mobile.activePane === 'curve'}
+    {#if mobile.activePane === 'curve'}
       <div class="curve-host">
         <ToneCurve />
       </div>
-    {:else if mobile.activePane === 'presets'}
-      <div class="mobile-rail"><LeftRail /></div>
+    {:else if mobile.activePane === 'tools'}
+      <MobileTools />
     {:else if mobile.activePane === 'history'}
-      <div class="mobile-rail"><LeftRail /></div>
+      <MobileHistory />
     {/if}
   </MobileSheet>
 </div>
@@ -94,6 +102,7 @@
     flex-direction: column;
   }
 
+  .mobile-strip,
   .tabbar {
     display: none;
   }
@@ -102,10 +111,6 @@
     padding: 12px;
     display: flex;
     justify-content: center;
-  }
-
-  .mobile-rail {
-    display: contents;
   }
 
   @media (max-width: 900px) {
@@ -118,8 +123,10 @@
       display: none;
     }
 
+    .mobile-strip,
     .tabbar {
       display: block;
+      flex-shrink: 0;
     }
   }
 </style>

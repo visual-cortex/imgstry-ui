@@ -34,8 +34,8 @@ const before = await page.evaluate(() => {
   return canvas.toDataURL();
 });
 
-// adjust exposure
-const exposure = page.locator('label.slider', { hasText: 'Exposure' }).locator('input');
+// adjust exposure (scope to the desktop right rail; the mobile strip is also in the DOM)
+const exposure = page.locator('aside.right label.slider', { hasText: 'Exposure' }).locator('input');
 await exposure.fill('1');
 await exposure.dispatchEvent('input');
 await page.waitForTimeout(900);
@@ -52,7 +52,7 @@ if (before === afterExposure) {
 }
 
 // adjust temperature
-const temp = page.locator('label.slider', { hasText: 'Temp' }).locator('input');
+const temp = page.locator('aside.right label.slider', { hasText: 'Temp' }).locator('input');
 await temp.fill('60');
 await temp.dispatchEvent('input');
 await page.waitForTimeout(900);

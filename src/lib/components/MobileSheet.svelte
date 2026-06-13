@@ -28,11 +28,12 @@
 </Dialog.Root>
 
 <style>
+  /* light overlay so the underlying image stays visible behind the sheet */
   :global(.sheet-overlay) {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(2px);
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(1px);
     z-index: 90;
   }
 
@@ -42,15 +43,16 @@
     right: 0;
     bottom: 0;
     z-index: 91;
-    background: var(--bg-rail);
+    background: color-mix(in srgb, var(--bg-rail) 96%, transparent);
     border-top: 1px solid var(--border);
     border-top-left-radius: var(--radius-lg);
     border-top-right-radius: var(--radius-lg);
-    max-height: 80vh;
+    max-height: 55vh;
     display: flex;
     flex-direction: column;
     padding-bottom: env(safe-area-inset-bottom);
     box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
   }
 
   :global(.sheet-header) {

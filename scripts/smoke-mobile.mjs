@@ -30,46 +30,61 @@ await page.setInputFiles('input[type=file]', IMAGE);
 await page.waitForSelector('.canvas-stage canvas:not(.hidden)', { timeout: 10_000 });
 console.log('ok: image loaded on mobile');
 
-// tab bar visible
+// adjust strip + tab bar both visible by default (no sheet)
+const stripVisible = await page.locator('.mobile-strip section.strip').isVisible();
 const tabBarVisible = await page.locator('nav.tabbar').isVisible();
-if (!tabBarVisible) {
-  fail('mobile tab bar not visible');
+if (!stripVisible || !tabBarVisible) {
+  fail(`expected inline strip + tab bar; strip=${stripVisible} tabbar=${tabBarVisible}`);
 } else {
-  console.log('ok: mobile tab bar visible');
+  console.log('ok: inline adjust strip + tab bar visible');
 }
 
-// open adjust sheet
-await page.locator('nav.tabbar button', { hasText: 'Adjust' }).click();
-await page.waitForSelector('.sheet', { timeout: 5_000 });
-console.log('ok: adjust sheet opens');
+const overlay = await page.locator('.sheet-overlay').count();
+if (overlay !== 0) {
+  fail(`expected no sheet overlay in adjust mode, saw ${overlay}`);
+} else {
+  console.log('ok: image not covered by sheet in adjust mode');
+}
 
-// adjust exposure inside sheet
-const exposure = page.locator('.sheet label.slider', { hasText: 'Exposure' }).locator('input').first();
-await exposure.fill('1');
-await exposure.dispatchEvent('input');
+// chip + inline slider edits image
+const baseline = await page.evaluate(() => document.querySelector('.canvas-stage canvas').toDataURL());
+await page.locator('.chip', { hasText: 'Contrast' }).click();
+const slider = page.locator('.mobile-strip input[type=range]');
+await slider.fill('60');
+await slider.dispatchEvent('input');
 await page.waitForTimeout(900);
-console.log('ok: exposure adjusted inside sheet');
 
-// close sheet
+const afterContrast = await page.evaluate(() => document.querySelector('.canvas-stage canvas').toDataURL());
+if (baseline === afterContrast) {
+  fail('contrast chip did not change canvas');
+} else {
+  console.log('ok: contrast chip + inline slider edits the image');
+}
+
+// Tools tab opens sheet
+await page.locator('nav.tabbar button', { hasText: 'Tools' }).click();
+await page.waitForSelector('.sheet');
+console.log('ok: tools sheet opens');
+await page.locator('.tool-card', { hasText: 'Vibrant' }).click();
+await page.waitForTimeout(800);
+const afterPreset = await page.evaluate(() => document.querySelector('.canvas-stage canvas').toDataURL());
+if (afterPreset === afterContrast) {
+  fail('preset did not change canvas');
+} else {
+  console.log('ok: preset applies and sheet auto-closes');
+}
+
+// curve tab
+await page.locator('nav.tabbar button', { hasText: 'Curve' }).click();
+await page.waitForSelector('.sheet svg');
+console.log('ok: tone curve sheet opens');
 await page.locator('.sheet-close').click();
 await page.waitForTimeout(400);
 
-// presets sheet
-await page.locator('nav.tabbar button', { hasText: 'Presets' }).click();
-await page.locator('.sheet button.preset').first().waitFor({ timeout: 5_000 });
-console.log('ok: presets sheet opens');
-
-// apply preset
-await page.locator('.sheet button.preset', { hasText: 'Vibrant' }).first().click();
-await page.waitForTimeout(700);
-console.log('ok: preset applied from mobile sheet');
-
-// curve sheet
-await page.locator('.sheet-close').click();
-await page.waitForTimeout(300);
-await page.locator('nav.tabbar button', { hasText: 'Curve' }).click();
-await page.locator('.sheet svg').first().waitFor({ timeout: 5_000 });
-console.log('ok: tone curve sheet opens');
+// history tab
+await page.locator('nav.tabbar button', { hasText: 'History' }).click();
+await page.waitForSelector('.sheet button.entry');
+console.log('ok: history sheet opens');
 
 await page.screenshot({ path: 'scripts/smoke-mobile.png' });
 console.log('ok: screenshot saved');
