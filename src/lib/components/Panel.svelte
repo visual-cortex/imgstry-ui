@@ -7,9 +7,10 @@
     children: Snippet;
   }
 
-  const propsValue: Props = $props();
-  let { title, children } = propsValue;
-  let isOpen = $state(propsValue.open ?? true);
+  const { title, open = true, children }: Props = $props();
+  // initial value only; toggling is owned by the header click handler
+  // svelte-ignore state_referenced_locally
+  let isOpen = $state(open);
 </script>
 
 <section class="panel">

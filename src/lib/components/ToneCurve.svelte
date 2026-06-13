@@ -146,6 +146,7 @@
     <button class="ghost reset" onclick={reset}>Reset</button>
   </div>
 
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <svg
     bind:this={svg}
     width={SIZE}
@@ -186,6 +187,7 @@
 
     {#each points as point, index}
       {@const px = toPixel(point)}
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
       <circle
         cx={px.x}
         cy={px.y}

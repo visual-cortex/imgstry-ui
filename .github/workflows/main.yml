@@ -28,7 +28,7 @@ jobs:
           cache: npm
 
       - name: Restore dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: svelte-check
         run: npm run check

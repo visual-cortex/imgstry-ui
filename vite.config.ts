@@ -7,8 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       // consume the engine straight from source for full types and HMR
-      imgstry: resolve(__dirname, '../imgstry/source/index.ts'),
-      '~': resolve(__dirname, '../imgstry/source'),
+      imgstry: resolve(import.meta.dirname, '../imgstry/source/index.ts'),
+      '~': resolve(import.meta.dirname, '../imgstry/source'),
     },
   },
   server: {
