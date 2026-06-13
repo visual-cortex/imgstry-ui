@@ -4,6 +4,9 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+  # Fired by the sibling imgstry repo when its master moves.
+  repository_dispatch:
+    types: [imgstry-engine-updated]
 
 permissions:
   contents: read
