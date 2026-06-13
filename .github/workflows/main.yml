@@ -18,22 +18,38 @@ jobs:
       matrix:
         node: ['22', '24']
     steps:
-      - name: Checkout
+      - name: Checkout imgstry-ui
         uses: actions/checkout@v4
+        with:
+          path: imgstry-ui
+
+      - name: Checkout imgstry engine
+        uses: actions/checkout@v4
+        with:
+          repository: visual-cortex/imgstry
+          path: imgstry
 
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
           cache: npm
+          cache-dependency-path: imgstry-ui/package-lock.json
+
+      - name: Install imgstry engine dependencies
+        working-directory: imgstry
+        run: npm ci
 
       - name: Restore dependencies
+        working-directory: imgstry-ui
         run: npm ci
 
       - name: svelte-check
+        working-directory: imgstry-ui
         run: npm run check
 
       - name: Build
+        working-directory: imgstry-ui
         run: npm run build
 
       - name: Upload build artifacts
@@ -41,5 +57,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dist-${{ github.sha }}
-          path: ./dist
+          path: imgstry-ui/dist
           retention-days: 7

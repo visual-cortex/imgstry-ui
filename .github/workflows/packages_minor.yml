@@ -20,18 +20,35 @@ jobs:
       pull-requests: write
     timeout-minutes: 90
 
+    defaults:
+      run:
+        working-directory: imgstry-ui
+
     steps:
-      - name: Checkout
+      - name: Checkout imgstry-ui
         uses: actions/checkout@v4
+        with:
+          path: imgstry-ui
+
+      - name: Checkout imgstry engine
+        uses: actions/checkout@v4
+        with:
+          repository: visual-cortex/imgstry
+          path: imgstry
 
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
+          cache-dependency-path: imgstry-ui/package-lock.json
 
       - name: Install jq
         run: sudo apt-get install -y jq
+
+      - name: Install imgstry engine dependencies
+        working-directory: ../imgstry
+        run: npm ci
 
       - name: Restore baseline dependencies
         run: npm ci
@@ -101,6 +118,7 @@ jobs:
         if: steps.detect.outputs.has_passing == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
+          path: imgstry-ui
           branch: chore/deps-minor
           delete-branch: true
           base: master
