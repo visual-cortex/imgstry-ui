@@ -32,8 +32,11 @@
 
   const fromEvent = (event: PointerEvent): ToneCurvePoint => {
     const rect = svg.getBoundingClientRect();
-    const x = (event.clientX - rect.left - PADDING) / PLOT;
-    const y = 1 - (event.clientY - rect.top - PADDING) / PLOT;
+    const scale = rect.width > 0 ? SIZE / rect.width : 1;
+    const svgX = (event.clientX - rect.left) * scale;
+    const svgY = (event.clientY - rect.top) * scale;
+    const x = (svgX - PADDING) / PLOT;
+    const y = 1 - (svgY - PADDING) / PLOT;
     return {
       x: Math.max(0, Math.min(1, x)),
       y: Math.max(0, Math.min(1, y)),
@@ -105,6 +108,10 @@
       [channel]: list,
     };
     editor.requestRender('Add curve point');
+
+    // immediately drag the freshly added point so the same gesture can move it
+    dragIndex = list.indexOf(pt);
+    svg.setPointerCapture(event.pointerId);
   };
 
   const onPointDoubleClick = (index: number) => (event: MouseEvent) => {
@@ -149,8 +156,8 @@
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <svg
     bind:this={svg}
-    width={SIZE}
-    height={SIZE}
+    viewBox="0 0 {SIZE} {SIZE}"
+    preserveAspectRatio="xMidYMid meet"
     onpointermove={onPointerMove}
     onpointerup={onPointerUp}
     onpointercancel={onPointerUp}
@@ -240,6 +247,8 @@
   svg {
     width: 100%;
     height: auto;
+    aspect-ratio: 1 / 1;
+    display: block;
     background: var(--bg-input);
     border-radius: var(--radius);
     border: 1px solid var(--border-soft);

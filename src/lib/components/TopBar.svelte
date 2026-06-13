@@ -137,4 +137,32 @@
     gap: 6px;
     justify-self: end;
   }
+
+  .actions :global(button) {
+    min-height: 36px;
+  }
+
+  @media (max-width: 700px) {
+    header {
+      grid-template-columns: auto 1fr;
+      grid-template-areas:
+        'brand actions'
+        'center center';
+      padding: 8px 10px;
+      gap: 4px;
+    }
+
+    .brand { grid-area: brand; }
+    .actions { grid-area: actions; }
+    .center {
+      grid-area: center;
+      justify-self: start;
+      font-size: 11px;
+    }
+    .module { display: none; }
+    .actions :global(button) {
+      font-size: 11px;
+      padding: 6px 8px;
+    }
+  }
 </style>

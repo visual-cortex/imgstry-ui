@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Tabs } from 'bits-ui';
   import {
     type ColorMode,
     type ColorState,
@@ -16,7 +17,7 @@
     onchange: (hex: string | null) => void;
   }
 
-  let { value, label = 'Color', disabled = false, onchange }: Props = $props();
+  const { value, label = 'Color', disabled = false, onchange }: Props = $props();
 
   let mode: ColorMode = $state('hex');
 
@@ -24,21 +25,17 @@
     (value ? stateFromHex(value) : stateFromHex('#FFFFFF')) satisfies ColorState,
   );
 
-  const commit = (next: ColorState) => {
-    onchange(next.hex);
-  };
+  const commit = (next: ColorState) => onchange(next.hex);
 
   const onHexInput = (event: Event) => {
     const normalized = normalizeHexInput((event.target as HTMLInputElement).value);
-
     if (normalized) {
       commit(stateFromHex(normalized));
     }
   };
 
-  const onNativePick = (event: Event) => {
+  const onNativePick = (event: Event) =>
     commit(stateFromHex((event.target as HTMLInputElement).value.toUpperCase()));
-  };
 
   const onRgb = (channel: 'r' | 'g' | 'b', raw: number) => {
     const next = { ...color.rgb, [channel]: raw };
@@ -61,18 +58,19 @@
 <div class="picker" class:disabled>
   <header>
     <span class="label">{label}</span>
-    <div class="modes">
-      {#each ['hex', 'rgb', 'hsv', 'cmyk'] as const as option}
-        <button
-          type="button"
-          class:active={mode === option}
-          {disabled}
-          onclick={() => (mode = option)}
-        >
-          {option.toUpperCase()}
-        </button>
-      {/each}
-    </div>
+    <Tabs.Root
+      value={mode}
+      onValueChange={(next) => (mode = next as ColorMode)}
+      class="modes"
+    >
+      <Tabs.List class="modes-list">
+        {#each ['hex', 'rgb', 'hsv', 'cmyk'] as const as option}
+          <Tabs.Trigger value={option} {disabled} class="mode-tab">
+            {option.toUpperCase()}
+          </Tabs.Trigger>
+        {/each}
+      </Tabs.List>
+    </Tabs.Root>
   </header>
 
   <div class="row">
@@ -180,6 +178,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .label {
@@ -190,7 +190,11 @@
     font-weight: 600;
   }
 
-  .modes {
+  :global(.modes) {
+    flex: none;
+  }
+
+  :global(.modes-list) {
     display: flex;
     gap: 2px;
     background: var(--bg);
@@ -198,25 +202,28 @@
     padding: 2px;
   }
 
-  .modes button {
+  :global(.mode-tab) {
     background: transparent;
     border: none;
-    padding: 3px 6px;
+    padding: 4px 8px;
     border-radius: 4px;
     font-size: 10px;
     font-weight: 600;
     letter-spacing: .5px;
     color: var(--text-dim);
+    cursor: pointer;
+    font-family: inherit;
+    min-height: 28px;
   }
 
-  .modes button:hover:not(:disabled) {
-    color: var(--text);
-    background: transparent;
-  }
-
-  .modes button.active {
+  :global(.mode-tab[data-state='active']) {
     background: var(--accent-soft);
     color: var(--accent);
+  }
+
+  :global(.mode-tab[data-disabled]) {
+    opacity: .5;
+    pointer-events: none;
   }
 
   .row {
@@ -227,7 +234,8 @@
 
   .swatch {
     position: relative;
-    width: 42px;
+    width: 44px;
+    min-height: 44px;
     flex-shrink: 0;
     border-radius: var(--radius);
     border: 1px solid var(--border);
@@ -252,11 +260,12 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     color: var(--text);
-    padding: 6px 10px;
-    font-family: 'SF Mono', Menlo, monospace;
+    padding: 8px 10px;
+    font-family: var(--font-mono);
     font-size: 13px;
     letter-spacing: 1px;
     text-transform: uppercase;
+    min-height: 44px;
   }
 
   .hex-input:focus {
@@ -293,6 +302,6 @@
 
   .clear {
     font-size: 11px;
-    padding: 3px 10px;
+    padding: 6px 10px;
   }
 </style>

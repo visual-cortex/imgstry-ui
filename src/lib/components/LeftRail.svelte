@@ -1,6 +1,7 @@
 <script lang="ts">
+  import { Collapsible } from 'bits-ui';
   import { editor } from '../editor/editor.svelte';
-  import { PRESETS } from '../editor/presets';
+  import { PRESETS, type Preset } from '../editor/presets';
   import Histogram from './Histogram.svelte';
 
   const grouped = PRESETS.reduce((acc, preset) => {
@@ -9,18 +10,11 @@
     }
     acc[preset.group].push(preset);
     return acc;
-  }, {} as Record<string, typeof PRESETS>);
+  }, {} as Record<string, Preset[]>);
 
-  let openGroups = $state<Record<string, boolean>>({
-    Cinematic: true,
-    Vintage: true,
-    Modern: true,
-    'B&W': true,
-  });
-
-  const toggle = (group: string) => {
-    openGroups = { ...openGroups, [group]: !openGroups[group] };
-  };
+  const groupOpen = $state<Record<string, boolean>>(
+    Object.fromEntries(Object.keys(grouped).map((group) => [group, true])),
+  );
 </script>
 
 <aside class="left scroll">
@@ -32,12 +26,12 @@
     </header>
 
     {#each Object.entries(grouped) as [group, presets]}
-      <div class="group">
-        <button class="ghost group-header" onclick={() => toggle(group)}>
-          <span class="caret" class:open={openGroups[group]}>▸</span>
+      <Collapsible.Root bind:open={groupOpen[group]} class="group">
+        <Collapsible.Trigger class="group-header">
+          <span class="caret">▸</span>
           {group}
-        </button>
-        {#if openGroups[group]}
+        </Collapsible.Trigger>
+        <Collapsible.Content>
           <ul>
             {#each presets as preset}
               <li>
@@ -51,8 +45,8 @@
               </li>
             {/each}
           </ul>
-        {/if}
-      </div>
+        </Collapsible.Content>
+      </Collapsible.Root>
     {/each}
   </section>
 
@@ -105,12 +99,12 @@
     letter-spacing: 1.5px;
   }
 
-  .group {
+  :global(.group) {
     display: flex;
     flex-direction: column;
   }
 
-  .group-header {
+  :global(.group-header) {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -119,17 +113,27 @@
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    padding: 5px 6px;
+    padding: 6px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    width: 100%;
   }
 
-  .caret {
+  :global(.group-header:hover) {
+    color: var(--text);
+  }
+
+  :global(.group-header .caret) {
     color: var(--text-muted);
     transition: transform .12s ease;
     font-size: 9px;
     display: inline-block;
   }
 
-  .caret.open {
+  :global(.group[data-state='open'] .caret) {
     transform: rotate(90deg);
   }
 
@@ -150,10 +154,11 @@
     width: 100%;
     text-align: left;
     justify-content: flex-start;
-    padding: 4px 8px;
+    padding: 6px 8px;
     font-size: 12px;
     color: var(--text-dim);
     border-radius: 4px;
+    min-height: 32px;
   }
 
   button.preset:hover:not(:disabled),

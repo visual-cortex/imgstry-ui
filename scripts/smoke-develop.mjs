@@ -84,14 +84,15 @@ if (afterPreset === afterTemp) {
 }
 
 // open tone curve panel
-await page.locator('section.panel button', { hasText: 'Tone Curve' }).click();
-await page.waitForSelector('svg', { timeout: 5_000 });
+await page.locator('.panel .header', { hasText: 'Tone Curve' }).first().click();
+await page.locator('.panel svg').first().waitFor({ timeout: 5_000 });
 console.log('ok: tone curve panel opens');
 
 // add a curve point via background click
-const svg = page.locator('section.panel svg').first();
+const svg = page.locator('.panel svg').first();
 const box = await svg.boundingBox();
-await page.mouse.click(box.x + box.width * .25, box.y + box.height * .75);
+// click upper-left so the added point lifts the curve off the identity line
+await page.mouse.click(box.x + box.width * .35, box.y + box.height * .25);
 await page.waitForTimeout(900);
 
 const afterCurve = await page.evaluate(() => {

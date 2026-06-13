@@ -22,18 +22,20 @@ page.on('console', (message) => {
 });
 
 await page.goto(URL);
-await page.waitForSelector('text=Drop an image here');
+await page.waitForSelector('text=Drop an image to begin');
 
 await page.setInputFiles('input[type=file]', IMAGE);
-await page.waitForSelector('canvas:not(.hidden)', { timeout: 10_000 });
+await page.waitForSelector('.canvas-stage canvas:not(.hidden)', { timeout: 10_000 });
 console.log('ok: image loaded');
 
-await page.waitForSelector('text=TINT');
+// open Color panel
+await page.locator('.panel .header', { hasText: 'Color' }).first().click();
+await page.locator('.panel .mode-tab').first().waitFor();
 
 // switch through every mode
 for (const mode of ['HEX', 'RGB', 'HSV', 'CMYK']) {
-  await page.locator('.modes button', { hasText: mode }).click();
-  const active = await page.locator('.modes button.active').textContent();
+  await page.locator('.mode-tab', { hasText: mode }).first().click();
+  const active = await page.locator('.mode-tab[data-state="active"]').first().textContent();
   if (active?.trim() !== mode) {
     fail(`mode switch did not activate ${mode} (got ${active})`);
   } else {
@@ -41,23 +43,23 @@ for (const mode of ['HEX', 'RGB', 'HSV', 'CMYK']) {
   }
 }
 
-// in HSV mode, slide hue to 200, expect canvas to change
-await page.locator('.modes button', { hasText: 'HSV' }).click();
-const hueSlider = page.locator('.channel', { hasText: 'H' }).first().locator('input[type=range]');
+// HSV slider drives a hue tint
+await page.locator('.mode-tab', { hasText: 'HSV' }).first().click();
+const hueSlider = page.locator('.panel .channel', { hasText: 'H' }).first().locator('input[type=range]');
 await hueSlider.fill('200');
 await hueSlider.dispatchEvent('input');
-await page.waitForTimeout(800);
+await page.waitForTimeout(900);
 
 const tinted = await page.evaluate(() => {
-  const canvas = document.querySelector('section canvas');
+  const canvas = document.querySelector('.canvas-stage canvas');
   return canvas.toDataURL();
 });
 
-// remove tint, expect canvas to revert
-await page.locator('.clear').click();
-await page.waitForTimeout(800);
+// remove tint
+await page.locator('.panel .clear').first().click();
+await page.waitForTimeout(900);
 const untinted = await page.evaluate(() => {
-  const canvas = document.querySelector('section canvas');
+  const canvas = document.querySelector('.canvas-stage canvas');
   return canvas.toDataURL();
 });
 
@@ -67,14 +69,13 @@ if (tinted === untinted) {
   console.log('ok: clear button removed the tint');
 }
 
-// re-apply via CMYK
-await page.locator('.modes button', { hasText: 'CMYK' }).click();
-const cyan = page.locator('.channel', { hasText: 'C' }).first().locator('input[type=range]');
+await page.locator('.mode-tab', { hasText: 'CMYK' }).first().click();
+const cyan = page.locator('.panel .channel', { hasText: 'C' }).first().locator('input[type=range]');
 await cyan.fill('60');
 await cyan.dispatchEvent('input');
-await page.waitForTimeout(800);
+await page.waitForTimeout(900);
 const retinted = await page.evaluate(() => {
-  const canvas = document.querySelector('section canvas');
+  const canvas = document.querySelector('.canvas-stage canvas');
   return canvas.toDataURL();
 });
 
@@ -84,13 +85,12 @@ if (retinted === untinted) {
   console.log('ok: CMYK tint re-applied');
 }
 
-// hex text input - direct entry
-await page.locator('.modes button', { hasText: 'HEX' }).click();
-await page.locator('.hex-input').fill('#FF00FF');
-await page.locator('.hex-input').dispatchEvent('change');
-await page.waitForTimeout(800);
+await page.locator('.mode-tab', { hasText: 'HEX' }).first().click();
+await page.locator('.panel .hex-input').first().fill('#FF00FF');
+await page.locator('.panel .hex-input').first().dispatchEvent('change');
+await page.waitForTimeout(900);
 const magenta = await page.evaluate(() => {
-  const canvas = document.querySelector('section canvas');
+  const canvas = document.querySelector('.canvas-stage canvas');
   return canvas.toDataURL();
 });
 

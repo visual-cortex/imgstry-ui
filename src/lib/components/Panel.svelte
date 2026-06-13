@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Collapsible } from 'bits-ui';
   import type { Snippet } from 'svelte';
 
   interface Props {
@@ -7,67 +8,73 @@
     children: Snippet;
   }
 
-  const { title, open = true, children }: Props = $props();
-  // initial value only; toggling is owned by the header click handler
+  const { title, open: defaultOpen = true, children }: Props = $props();
+  // initial value only; bits-ui Collapsible owns the runtime toggle
   // svelte-ignore state_referenced_locally
-  let isOpen = $state(open);
+  let open = $state(defaultOpen);
 </script>
 
-<section class="panel">
-  <button class="ghost header" onclick={() => (isOpen = !isOpen)}>
-    <span class="caret" class:open={isOpen}>▸</span>
+<Collapsible.Root bind:open class="panel">
+  <Collapsible.Trigger class="header">
+    <span class="caret">▸</span>
     <span class="title">{title}</span>
-  </button>
-  {#if isOpen}
-    <div class="body">
-      {@render children()}
-    </div>
-  {/if}
-</section>
+  </Collapsible.Trigger>
+  <Collapsible.Content class="body">
+    {@render children()}
+  </Collapsible.Content>
+</Collapsible.Root>
 
 <style>
-  .panel {
+  :global(.panel) {
     border-bottom: 1px solid var(--border-soft);
   }
 
-  .header {
+  :global(.panel .header) {
     width: 100%;
     display: flex;
     align-items: center;
     gap: 6px;
     justify-content: flex-start;
-    padding: 8px 12px;
-    border-radius: 0;
+    padding: 12px;
     background: transparent;
     border: none;
-  }
-
-  .header:hover {
-    background: var(--bg-elevated);
-  }
-
-  .caret {
-    color: var(--text-muted);
-    font-size: 9px;
-    transition: transform .15s ease;
-  }
-
-  .caret.open {
-    transform: rotate(90deg);
-  }
-
-  .title {
+    cursor: pointer;
+    color: var(--text);
+    font-family: inherit;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    color: var(--text);
+    text-align: left;
   }
 
-  .body {
+  :global(.panel .header:hover) {
+    background: var(--bg-elevated);
+  }
+
+  :global(.panel .caret) {
+    color: var(--text-muted);
+    font-size: 9px;
+    transition: transform .15s ease;
+    display: inline-block;
+  }
+
+  :global(.panel[data-state='open'] .caret) {
+    transform: rotate(90deg);
+  }
+
+  :global(.panel .body) {
     display: flex;
     flex-direction: column;
     gap: 8px;
     padding: 4px 12px 14px;
+  }
+
+  :global(.panel .body[hidden]) {
+    display: none;
+  }
+
+  :global(.panel .title) {
+    flex: 1;
   }
 </style>
