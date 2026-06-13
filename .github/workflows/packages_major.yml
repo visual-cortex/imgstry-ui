@@ -49,18 +49,18 @@ jobs:
 
     steps:
       - name: Checkout imgstry-ui
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: imgstry-ui
 
       - name: Checkout imgstry engine
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: visual-cortex/imgstry
           path: imgstry
 
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: npm
@@ -150,7 +150,7 @@ jobs:
 
       - name: Forge the Pull Request
         if: steps.detect.outputs.has_passing == 'true'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           path: imgstry-ui
           branch: chore/deps-major
