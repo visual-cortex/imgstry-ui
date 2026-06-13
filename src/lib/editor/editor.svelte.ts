@@ -1,27 +1,70 @@
-import type { HistogramData } from 'imgstry';
-import { GaussianBlur, Imgstry } from 'imgstry';
+import {
+  CubicSpline,
+  GaussianBlur,
+  type HistogramData,
+  Imgstry,
+} from 'imgstry';
 import {
   type Adjustments,
-  blurParams,
   DEFAULT_ADJUSTMENTS,
   isPristine,
+  noiseReductionParams,
   sharpenKernel,
+  type ToneCurvePoint,
 } from './adjustments';
 
-const RENDER_DEBOUNCE_MS = 90;
+const RENDER_DEBOUNCE_MS = 70;
+
+interface HistoryEntry {
+  id: string;
+  label: string;
+  adjustments: Adjustments;
+}
+
+const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+
+const cubicMapping = (points: ToneCurvePoint[]): number[] | null => {
+  if (points.length < 2) {
+    return null;
+  }
+
+  const sorted = [...points].sort((a, b) => a.x - b.x);
+  const isIdentity =
+    sorted.length === 2 &&
+    sorted[0].x === 0 && sorted[0].y === 0 &&
+    sorted[1].x === 1 && sorted[1].y === 1;
+
+  if (isIdentity) {
+    return null;
+  }
+
+  const spline = new CubicSpline(sorted);
+  const mapping = new Array<number>(256);
+
+  for (let i = 0; i < 256; i++) {
+    const y = spline.interpolate(i / 255);
+    const clamped = y < 0 ? 0 : y > 1 ? 1 : y;
+    mapping[i] = Math.round(clamped * 255);
+  }
+
+  return mapping;
+};
 
 class EditorState {
-  public adjustments = $state<Adjustments>({ ...DEFAULT_ADJUSTMENTS });
+  public adjustments = $state<Adjustments>(clone(DEFAULT_ADJUSTMENTS));
   public hasImage = $state(false);
   public isRendering = $state(false);
   public showOriginal = $state(false);
   public histogram = $state<HistogramData | null>(null);
   public imageName = $state('');
+  public history = $state<HistoryEntry[]>([]);
+  public dimensions = $state<{ width: number; height: number } | null>(null);
 
   private _engine: Imgstry | null = null;
   private _debounce: ReturnType<typeof setTimeout> | null = null;
   private _renderQueue: Promise<void> = Promise.resolve();
   private _renderPending = false;
+  private _historyCounter = 0;
 
   public attach(canvas: HTMLCanvasElement): void {
     this._engine?.dispose();
@@ -45,14 +88,20 @@ class EditorState {
       this._engine.drawImage(image);
       this.imageName = file.name;
       this.hasImage = true;
-      this.adjustments = { ...DEFAULT_ADJUSTMENTS };
+      this.dimensions = { width: image.width as number, height: image.height as number };
+      this.adjustments = clone(DEFAULT_ADJUSTMENTS);
       this.histogram = this._engine.histogram;
+      this.history = [{
+        id: `h${this._historyCounter++}`,
+        label: 'Import',
+        adjustments: clone(this.adjustments),
+      }];
     } finally {
       URL.revokeObjectURL(url);
     }
   }
 
-  public requestRender(): void {
+  public requestRender(historyLabel?: string): void {
     if (!this._engine || !this.hasImage) {
       return;
     }
@@ -61,7 +110,7 @@ class EditorState {
       clearTimeout(this._debounce);
     }
 
-    this._debounce = setTimeout(() => this._enqueueRender(), RENDER_DEBOUNCE_MS);
+    this._debounce = setTimeout(() => this._enqueueRender(historyLabel), RENDER_DEBOUNCE_MS);
   }
 
   public previewOriginal(show: boolean): void {
@@ -80,8 +129,18 @@ class EditorState {
   }
 
   public resetAdjustments(): void {
-    this.adjustments = { ...DEFAULT_ADJUSTMENTS };
-    this.requestRender();
+    this.adjustments = clone(DEFAULT_ADJUSTMENTS);
+    this.requestRender('Reset');
+  }
+
+  public applyPreset(preset: Partial<Adjustments>, label: string): void {
+    this.adjustments = { ...clone(DEFAULT_ADJUSTMENTS), ...clone(preset) };
+    this.requestRender(label);
+  }
+
+  public restoreHistory(entry: HistoryEntry): void {
+    this.adjustments = clone(entry.adjustments);
+    this.requestRender(`Restore: ${entry.label}`);
   }
 
   public async export(type: 'image/png' | 'image/jpeg'): Promise<void> {
@@ -101,18 +160,18 @@ class EditorState {
     URL.revokeObjectURL(url);
   }
 
-  private _enqueueRender(): void {
+  private _enqueueRender(historyLabel?: string): void {
     if (this._renderPending) {
       return;
     }
 
     this._renderPending = true;
     this._renderQueue = this._renderQueue
-      .then(() => this._render())
+      .then(() => this._render(historyLabel))
       .catch((error) => console.error('imgstry render failed', error));
   }
 
-  private async _render(): Promise<void> {
+  private async _render(historyLabel?: string): Promise<void> {
     const engine = this._engine;
 
     if (!engine || this.showOriginal) {
@@ -124,7 +183,7 @@ class EditorState {
     this.isRendering = true;
 
     try {
-      const settings = $state.snapshot(this.adjustments);
+      const settings = $state.snapshot(this.adjustments) as Adjustments;
 
       engine.clear();
 
@@ -136,63 +195,91 @@ class EditorState {
       }
 
       this.histogram = engine.histogram;
+
+      if (historyLabel) {
+        this.history = [
+          ...this.history,
+          {
+            id: `h${this._historyCounter++}`,
+            label: historyLabel,
+            adjustments: clone(settings),
+          },
+        ].slice(-50);
+      }
     } finally {
       this.isRendering = false;
     }
   }
 
-  private _queueOperations(engine: Imgstry, settings: Adjustments): void {
-    if (settings.blackAndWhite) {
-      engine.blackAndWhite();
+  // eslint-disable-next-line complexity
+  private _queueOperations(engine: Imgstry, s: Adjustments): void {
+    if (s.temperature) engine.temperature(s.temperature);
+    if (s.tintShift) engine.tintShift(s.tintShift);
+    if (s.exposure) engine.exposure(s.exposure);
+    if (s.contrast) engine.contrast(s.contrast);
+
+    if (s.highlights) engine.highlights(s.highlights);
+    if (s.shadows) engine.shadows(s.shadows);
+    if (s.whites) engine.whites(s.whites);
+    if (s.blacks) engine.blacks(s.blacks);
+
+    if (s.blackAndWhite) engine.blackAndWhite();
+
+    if (s.saturation) engine.saturation(s.saturation);
+    if (s.vibrance) engine.vibrance(s.vibrance);
+    if (s.hue) engine.hue(s.hue);
+    if (s.sepia) engine.sepia(s.sepia);
+    if (s.gamma) engine.gamma(s.gamma);
+
+    if (s.invert) engine.invert();
+    if (s.tint) engine.tint(s.tint);
+
+    if (s.splitShadows && s.splitHighlights) {
+      engine.splitTone({
+        shadows: s.splitShadows,
+        highlights: s.splitHighlights,
+        balance: s.splitBalance,
+        amount: s.splitAmount,
+      });
     }
 
-    if (settings.exposure) {
-      engine.brightness(settings.exposure);
+    const rgbCurve = cubicMapping(s.curves.rgb);
+    const rCurve = cubicMapping(s.curves.red);
+    const gCurve = cubicMapping(s.curves.green);
+    const bCurve = cubicMapping(s.curves.blue);
+
+    if (rgbCurve) engine.curve({ rgb: rgbCurve });
+    if (rCurve || gCurve || bCurve) {
+      engine.curve({
+        r: rCurve ?? undefined,
+        g: gCurve ?? undefined,
+        b: bCurve ?? undefined,
+      });
     }
 
-    if (settings.contrast) {
-      engine.contrast(settings.contrast);
+    if (s.clarity || s.texture) {
+      engine.clarity(s.clarity + s.texture * .5);
     }
 
-    if (settings.gamma) {
-      engine.gamma(settings.gamma);
+    if (s.sharpenAmount) {
+      engine.convolve(sharpenKernel(s.sharpenAmount));
     }
 
-    if (settings.saturation) {
-      engine.saturation(settings.saturation);
-    }
-
-    if (settings.vibrance) {
-      engine.vibrance(settings.vibrance);
-    }
-
-    if (settings.hue) {
-      engine.hue(settings.hue);
-    }
-
-    if (settings.sepia) {
-      engine.sepia(settings.sepia);
-    }
-
-    if (settings.noise) {
-      engine.noise(settings.noise);
-    }
-
-    if (settings.invert) {
-      engine.invert();
-    }
-
-    if (settings.tint) {
-      engine.tint(settings.tint);
-    }
-
-    if (settings.sharpen) {
-      engine.convolve(sharpenKernel(settings.sharpen));
-    }
-
-    if (settings.blur) {
-      const { size, sigma } = blurParams(settings.blur);
+    if (s.noiseReduction) {
+      const { size, sigma } = noiseReductionParams(s.noiseReduction);
       engine.convolve(GaussianBlur(size, sigma));
+    }
+
+    if (s.grain) {
+      engine.noise(s.grain);
+    }
+
+    if (s.vignetteAmount) {
+      engine.vignette({
+        amount: s.vignetteAmount,
+        midpoint: s.vignetteMidpoint,
+        feather: s.vignetteFeather,
+      });
     }
   }
 }

@@ -1,8 +1,8 @@
 <script lang="ts">
   import { editor } from '../editor/editor.svelte';
 
-  const WIDTH = 276;
-  const HEIGHT = 110;
+  const WIDTH = 200;
+  const HEIGHT = 80;
 
   let canvas: HTMLCanvasElement;
 
@@ -49,15 +49,17 @@
     );
 
     context.globalCompositeOperation = 'screen';
-    drawChannel(context, histogram.channel.red, 'rgba(220, 70, 60, 0.55)', peak);
-    drawChannel(context, histogram.channel.green, 'rgba(90, 200, 90, 0.55)', peak);
-    drawChannel(context, histogram.channel.blue, 'rgba(80, 130, 240, 0.55)', peak);
+    drawChannel(context, histogram.channel.red, 'rgba(220, 70, 60, 0.5)', peak);
+    drawChannel(context, histogram.channel.green, 'rgba(90, 200, 90, 0.5)', peak);
+    drawChannel(context, histogram.channel.blue, 'rgba(80, 130, 240, 0.5)', peak);
     context.globalCompositeOperation = 'source-over';
   });
 </script>
 
 <div class="histogram">
-  <h2>Histogram</h2>
+  <header>
+    <h2>Histogram</h2>
+  </header>
   <canvas bind:this={canvas} width={WIDTH} height={HEIGHT}></canvas>
 </div>
 
@@ -65,25 +67,27 @@
   .histogram {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 12px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    gap: 6px;
+  }
+
+  header {
+    padding: 0 6px;
   }
 
   h2 {
     margin: 0;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text-dim);
+    letter-spacing: 1.5px;
   }
 
   canvas {
     width: 100%;
-    background: #18181c;
+    height: auto;
+    background: var(--bg-input);
     border-radius: 4px;
+    border: 1px solid var(--border-soft);
   }
 </style>

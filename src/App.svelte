@@ -1,20 +1,41 @@
 <script lang="ts">
-  import AdjustmentPanel from './lib/components/AdjustmentPanel.svelte';
-  import Histogram from './lib/components/Histogram.svelte';
+  import { onMount } from 'svelte';
+  import LeftRail from './lib/components/LeftRail.svelte';
+  import RightRail from './lib/components/RightRail.svelte';
   import TopBar from './lib/components/TopBar.svelte';
   import Viewport from './lib/components/Viewport.svelte';
+  import { editor } from './lib/editor/editor.svelte';
+
+  onMount(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (!editor.hasImage) {
+        return;
+      }
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      if (event.key === '\\') {
+        event.preventDefault();
+        editor.previewOriginal(!editor.showOriginal);
+      } else if (event.key === 'r' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        editor.resetAdjustments();
+      }
+    };
+
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
 </script>
 
 <div class="studio">
   <TopBar />
 
   <main>
+    <LeftRail />
     <Viewport />
-
-    <aside>
-      <Histogram />
-      <AdjustmentPanel />
-    </aside>
+    <RightRail />
   </main>
 </div>
 
@@ -27,18 +48,9 @@
 
   main {
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 220px 1fr 320px;
     flex: 1;
     min-height: 0;
-  }
-
-  aside {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 12px;
-    background: var(--bg-panel);
-    border-left: 1px solid var(--border);
-    overflow-y: auto;
+    background: var(--bg);
   }
 </style>
