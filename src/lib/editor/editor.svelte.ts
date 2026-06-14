@@ -22,15 +22,6 @@ interface HistoryEntry {
   adjustments: Adjustments;
 }
 
-interface RawSource {
-  rgb16: Uint16Array;
-  width: number;
-  height: number;
-  whiteBalance: [number, number, number];
-  blackLevel: number;
-  whiteLevel: number;
-}
-
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 const cubicMapping = (points: ToneCurvePoint[]): number[] | null => {
@@ -76,8 +67,6 @@ class EditorState {
   private _renderQueue: Promise<void> = Promise.resolve();
   private _renderPending = false;
   private _historyCounter = 0;
-  private _rawSource: RawSource | null = null;
-  private _lastRebakeExposure: number = Number.NaN;
 
   public attach(canvas: HTMLCanvasElement): void {
     this._engine?.dispose();
@@ -94,8 +83,6 @@ class EditorState {
       return;
     }
 
-    this._rawSource = null;
-    this._lastRebakeExposure = Number.NaN;
     this.rawSourceMode = null;
 
     if (isRawExtension(file.name)) {
@@ -119,23 +106,15 @@ class EditorState {
       result.whiteLevel !== undefined
     ) {
       // True 16-bit path: ingest linear sensor data directly into the
-      // engine's Float32 pipeline. All subsequent edits operate on the
-      // float buffer; exposure rebakes from linear when changed.
-      this._rawSource = {
-        rgb16: result.rgb16,
-        width: result.width,
-        height: result.height,
-        whiteBalance: result.whiteBalance,
-        blackLevel: result.blackLevel,
-        whiteLevel: result.whiteLevel,
-      };
+      // engine's Float32 pipeline. Engine owns the rgb16 + metadata so
+      // exposure rebakes can run inside the engine, not the UI.
       engine.setRawSource(result.rgb16, result.width, result.height, {
         blackLevel: result.blackLevel,
         whiteLevel: result.whiteLevel,
         whiteBalance: result.whiteBalance,
         exposure: 0,
+        cameraToSrgb: result.cameraToSrgb ?? undefined,
       });
-      this._lastRebakeExposure = 0;
     } else {
       // Preview fallback: ingest the camera's JPEG through the 8-bit
       // canvas path. No float headroom.
@@ -265,7 +244,7 @@ class EditorState {
 
       engine.clear();
 
-      if (this._rawSource) {
+      if (engine.rawMode === 'sensor') {
         await this._renderRaw(engine, settings);
       } else if (isPristine(settings)) {
         engine.reset();
@@ -299,21 +278,9 @@ class EditorState {
   }
 
   private async _renderRaw(engine: Imgstry, settings: Adjustments): Promise<void> {
-    const raw = this._rawSource;
-    if (!raw) return;
-
-    // Re-ingest the linear 16-bit source whenever exposure changes; the
-    // exposure stops are baked into the engine's Float32 baseline so the
-    // sensor's full headroom is available to every adjustment downstream.
-    if (settings.exposure !== this._lastRebakeExposure) {
-      engine.setRawSource(raw.rgb16, raw.width, raw.height, {
-        blackLevel: raw.blackLevel,
-        whiteLevel: raw.whiteLevel,
-        whiteBalance: raw.whiteBalance,
-        exposure: settings.exposure,
-      });
-      this._lastRebakeExposure = settings.exposure;
-    }
+    // Engine owns the rgb16 + sensor metadata; rebakeExposure is a
+    // no-op when the requested stops match the last applied value.
+    engine.rebakeExposure(settings.exposure);
 
     const withoutExposure: Adjustments = { ...settings, exposure: 0 };
     if (isPristine(withoutExposure)) {
