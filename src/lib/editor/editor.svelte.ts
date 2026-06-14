@@ -4,7 +4,6 @@ import {
   type HistogramData,
   Imgstry,
   isRawExtension,
-  tonemap16to8,
 } from 'imgstry';
 import {
   type Adjustments,
@@ -111,12 +110,6 @@ class EditorState {
     if (!engine) return;
 
     const result = await Imgstry.loadRawFull(file);
-    const bitmap = await createImageBitmap(result.imageData);
-    try {
-      engine.drawImage(bitmap);
-    } finally {
-      bitmap.close();
-    }
 
     if (
       result.source === 'sensor' &&
@@ -125,6 +118,9 @@ class EditorState {
       result.blackLevel !== undefined &&
       result.whiteLevel !== undefined
     ) {
+      // True 16-bit path: ingest linear sensor data directly into the
+      // engine's Float32 pipeline. All subsequent edits operate on the
+      // float buffer; exposure rebakes from linear when changed.
       this._rawSource = {
         rgb16: result.rgb16,
         width: result.width,
@@ -133,7 +129,22 @@ class EditorState {
         blackLevel: result.blackLevel,
         whiteLevel: result.whiteLevel,
       };
+      engine.setRawSource(result.rgb16, result.width, result.height, {
+        blackLevel: result.blackLevel,
+        whiteLevel: result.whiteLevel,
+        whiteBalance: result.whiteBalance,
+        exposure: 0,
+      });
       this._lastRebakeExposure = 0;
+    } else {
+      // Preview fallback: ingest the camera's JPEG through the 8-bit
+      // canvas path. No float headroom.
+      const bitmap = await createImageBitmap(result.imageData);
+      try {
+        engine.drawImage(bitmap);
+      } finally {
+        bitmap.close();
+      }
     }
 
     this.rawSourceMode = result.source;
@@ -291,29 +302,23 @@ class EditorState {
     const raw = this._rawSource;
     if (!raw) return;
 
-    // Re-tonemap the linear 16-bit source whenever exposure changes;
-    // other adjustments run as 8-bit ops on top of the rebaked base.
+    // Re-ingest the linear 16-bit source whenever exposure changes; the
+    // exposure stops are baked into the engine's Float32 baseline so the
+    // sensor's full headroom is available to every adjustment downstream.
     if (settings.exposure !== this._lastRebakeExposure) {
-      const rebaked = tonemap16to8(raw.rgb16, raw.width, raw.height, {
+      engine.setRawSource(raw.rgb16, raw.width, raw.height, {
         blackLevel: raw.blackLevel,
         whiteLevel: raw.whiteLevel,
         whiteBalance: raw.whiteBalance,
         exposure: settings.exposure,
       });
-      const buffer = new Uint8ClampedArray(rebaked);
-      const imageData = new ImageData(buffer, raw.width, raw.height);
-      const bitmap = await createImageBitmap(imageData);
-      try {
-        engine.drawImage(bitmap);
-      } finally {
-        bitmap.close();
-      }
       this._lastRebakeExposure = settings.exposure;
     }
 
     const withoutExposure: Adjustments = { ...settings, exposure: 0 };
     if (isPristine(withoutExposure)) {
-      // Rebake already on the canvas; nothing else to apply.
+      // The float baseline already reflects exposure; no other ops to apply.
+      engine.reset();
       return;
     }
     this._queueOperations(engine, withoutExposure);
