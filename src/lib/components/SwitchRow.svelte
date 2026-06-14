@@ -73,6 +73,7 @@
   }
 
   :global(.switch-wrap .thumb) {
+    box-sizing: border-box;
     display: block;
     position: absolute;
     top: 2px;
@@ -80,14 +81,16 @@
     width: 14px;
     height: 14px;
     background: var(--color-text);
+    border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 999px;
     transition: left 0.15s ease, background 0.15s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
     pointer-events: none;
   }
 
   :global(.switch-wrap .switch[data-state='checked'] .thumb) {
-    left: 17px;
+    left: 18px;
     background: #fff;
+    border-color: rgba(0, 0, 0, 0.18);
   }
 </style>
