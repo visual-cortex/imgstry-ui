@@ -69,6 +69,9 @@
             <li class:current={index === 0}>
               <button class="history-entry" onclick={() => editor.restoreHistory(entry)}>
                 <span class="rail">
+                  {#if index > 0}
+                    <span class="connector"></span>
+                  {/if}
                   <span class="node" class:head={index === 0}></span>
                 </span>
                 <span class="label">{entry.label}</span>
@@ -242,24 +245,27 @@
     min-height: 0;
   }
 
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: calc(8px + 7px); /* padding + half-node */
-    top: 16px;
-    bottom: 8px;
-    width: 1px;
-    background: linear-gradient(
-      to bottom,
-      var(--color-border) 0%,
-      var(--color-border) 50%,
-      transparent 100%
-    );
-  }
-
   .history-list {
     gap: 0;
     flex-shrink: 0;
+  }
+
+  /*
+   * Connector line lives per-entry. Each entry (except the first one
+   * rendered, which is the most recent step) draws a line from the top
+   * of its row up to its own node, joining the previous entry's node
+   * to this one. Scales naturally to N entries and never extends past
+   * the last node into the "tip" footer.
+   */
+  .connector {
+    position: absolute;
+    top: 0;
+    bottom: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    background: var(--color-border);
+    pointer-events: none;
   }
 
   .tip {
