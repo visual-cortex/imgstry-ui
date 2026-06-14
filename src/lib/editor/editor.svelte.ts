@@ -3,6 +3,7 @@ import {
   GaussianBlur,
   type HistogramData,
   Imgstry,
+  isRawExtension,
 } from 'imgstry';
 import {
   type Adjustments,
@@ -81,10 +82,13 @@ class EditorState {
       return;
     }
 
-    const url = URL.createObjectURL(file);
+    const isRaw = isRawExtension(file.name);
+    const url = isRaw ? null : URL.createObjectURL(file);
 
     try {
-      const image = await Imgstry.loadImage(url);
+      const image = url !== null
+        ? await Imgstry.loadImage(url)
+        : await Imgstry.loadRaw(file);
       this._engine.drawImage(image);
       this.imageName = file.name;
       this.hasImage = true;
@@ -97,7 +101,9 @@ class EditorState {
         adjustments: clone(this.adjustments),
       }];
     } finally {
-      URL.revokeObjectURL(url);
+      if (url !== null) {
+        URL.revokeObjectURL(url);
+      }
     }
   }
 

@@ -42,7 +42,7 @@
     <input
       bind:this={fileInput}
       type="file"
-      accept="image/*"
+      accept="image/*,.cr2,.cr3,.nef,.nrw,.arw,.srf,.sr2,.dng,.orf,.rw2,.pef,.raf,.x3f,.3fr,.crw,.dcr,.erf,.kdc,.mef,.mos,.mrw,.raw"
       hidden
       onchange={onFile}
     />

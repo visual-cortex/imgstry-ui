@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { isRawExtension } from 'imgstry';
   import { onDestroy, onMount } from 'svelte';
   import { editor } from '../editor/editor.svelte';
 
@@ -139,7 +140,7 @@
 
     const file = event.dataTransfer?.files?.[0];
 
-    if (file?.type.startsWith('image/')) {
+    if (file && (file.type.startsWith('image/') || isRawExtension(file.name))) {
       void editor.open(file);
     }
   };
@@ -182,7 +183,7 @@
       <div class="placeholder">
         <p class="title">Drop an image to begin</p>
         <p class="hint">or use Open in the top bar</p>
-        <p class="kbd">supports JPG · PNG · WEBP · AVIF</p>
+        <p class="kbd">supports JPG · PNG · WEBP · AVIF · RAW</p>
       </div>
     {/if}
 

@@ -50,6 +50,14 @@ panels on desktop. Same engine on both.
 - Dark + light theme, persisted to localStorage
 - PNG / JPEG export with one tap
 
+**Formats**
+
+- Standard: JPG, PNG, WEBP, AVIF, GIF, BMP
+- Camera RAW (embedded JPEG preview): CR2, NEF, NRW, ARW, SR2, DNG, ORF,
+  RW2, PEF, RAF, X3F, 3FR, CRW, ORF, MRW, DCR, KDC, MEF, MOS, ERF
+- CR3 and other HEIF-wrapped sensor data are not supported yet -
+  full RAW demosaicing is on the roadmap
+
 **Plane mode**
 
 - Installable PWA: home-screen icon, standalone window, no browser chrome
@@ -135,6 +143,7 @@ You'll need:
 | `node scripts/smoke-develop.mjs` | Desktop develop module flow |
 | `node scripts/smoke-mobile.mjs` | iPhone 14 Pro viewport flow |
 | `node scripts/smoke-color.mjs` | Color picker mode-switch flow |
+| `node scripts/smoke-raw.mjs` | RAW (.nef) embedded-JPEG decode flow |
 
 Smoke tests assume a dev server on `:5199`. Launch one with:
 
