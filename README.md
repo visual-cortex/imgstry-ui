@@ -53,16 +53,37 @@ panels on desktop. Same engine on both.
 **Formats**
 
 - Standard: JPG, PNG, WEBP, AVIF, GIF, BMP
-- Camera RAW, full sensor pipeline: TIFF / DNG with uncompressed or
-  lossless-JPEG (Compression=7) Bayer strips. Decodes 14/16-bit linear,
-  demosaics RGGB, applies AsShotNeutral white balance, and tonemaps to
-  8-bit sRGB. Exposure adjustments rebake from the linear source so you
-  get full headroom for highlight pulls.
-- Camera RAW, preview fallback: when sensor decode isn't supported
-  (CR3 / HEIF wrap, exotic compression, non-RGGB pattern), the editor
-  lifts the embedded JPEG preview baked by the camera.
-- Recognised RAW extensions: CR2, CR3, NEF, NRW, ARW, SR2, DNG, ORF,
-  RW2, PEF, RAF, X3F, 3FR, CRW, MRW, DCR, KDC, MEF, MOS, ERF.
+
+**Camera RAW**
+
+A top-bar badge tells you which path the current file took:
+
+- `RAW · 14-bit sensor` (green) - decoded the actual sensor data.
+  Exposure pulls bring back highlight headroom that an 8-bit JPEG
+  would have clipped.
+- `RAW · JPEG preview` (orange) - sensor decode unsupported for this
+  file; editing the camera's baked JPEG. No extra headroom.
+
+Sensor path supports RGGB Bayer cameras with TIFF / TIFF-EP / DNG
+containers, 8-16 bit precision, uncompressed strips or lossless-JPEG
+(Compression=7, T.81 Annex H, predictor 1):
+
+- `DNG` (Adobe converter, native DNG cameras): full sensor path.
+- `CR2` (Canon, all bodies through EOS R-series): full sensor path.
+- `NEF`, `NRW` (Nikon): full sensor path.
+- `ARW`, `SR2` (Sony, uncompressed + standard lossless): full sensor.
+  Sony's lossy-compressed ARW (cRAW) falls back to JPEG preview.
+- `ORF` (Olympus), `PEF` (Pentax), `RW2` (Panasonic): full sensor for
+  the LJPEG-compressed bodies; uncompressed fallback otherwise.
+
+Preview-only (today):
+
+- `CR3` (Canon) - HEIF-wrapped sensor data.
+- `RAF` (Fuji X-Trans) - 6x6 CFA pattern, not yet demosaiced.
+- `X3F` (Sigma Foveon) - layered sensor, not Bayer.
+
+Recognised RAW extensions: CR2, CR3, NEF, NRW, ARW, SR2, DNG, ORF,
+RW2, PEF, RAF, X3F, 3FR, CRW, MRW, DCR, KDC, MEF, MOS, ERF.
 
 **Plane mode**
 

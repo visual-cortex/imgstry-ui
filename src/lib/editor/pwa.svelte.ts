@@ -6,11 +6,14 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+const INSTALL_DISMISSED_KEY = 'imgstry.pwa.install-dismissed';
+
 class PwaState {
   public online = $state(typeof navigator === 'undefined' ? true : navigator.onLine);
   public needsRefresh = $state(false);
   public offlineReady = $state(false);
   public canInstall = $state(false);
+  public installDismissed = $state(false);
 
   private _installEvent: BeforeInstallPromptEvent | null = null;
   private _update: ((reload?: boolean) => Promise<void>) | null = null;
@@ -18,6 +21,12 @@ class PwaState {
   public constructor() {
     if (typeof window === 'undefined') {
       return;
+    }
+
+    try {
+      this.installDismissed = localStorage.getItem(INSTALL_DISMISSED_KEY) === '1';
+    } catch {
+      // Private mode / storage disabled - prompt stays dismissible per-session.
     }
 
     this._update = registerSW({
@@ -43,6 +52,15 @@ class PwaState {
       this._installEvent = null;
       this.canInstall = false;
     });
+  }
+
+  public dismissInstall(): void {
+    this.installDismissed = true;
+    try {
+      localStorage.setItem(INSTALL_DISMISSED_KEY, '1');
+    } catch {
+      // Best-effort persistence.
+    }
   }
 
   public async install(): Promise<void> {

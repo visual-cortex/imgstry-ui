@@ -26,15 +26,19 @@
     </div>
   {/if}
 
-  {#if pwa.canInstall}
-    <button class="pwa-toast install" onclick={() => pwa.install()}>
+</div>
+
+{#if pwa.canInstall && !pwa.installDismissed}
+  <div class="pwa-install-anchor">
+    <button class="pwa-install-cta" onclick={() => pwa.install()}>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
       </svg>
       <span>Install imgstry</span>
     </button>
-  {/if}
-</div>
+    <button class="pwa-install-dismiss" aria-label="Dismiss install prompt" onclick={() => pwa.dismissInstall()}>×</button>
+  </div>
+{/if}
 
 <style>
   .pwa-stack {
@@ -79,12 +83,63 @@
     border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
   }
 
-  .pwa-toast.install {
+  .pwa-install-anchor {
+    position: fixed;
+    top: calc(60px + env(safe-area-inset-top));
+    right: var(--space-lg);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xxs);
+    z-index: var(--layer-toast);
+  }
+
+  .pwa-install-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
     background: var(--color-accent-grad);
-    border-color: transparent;
+    border: none;
+    border-radius: var(--radius-pill);
     color: #fff;
-    cursor: pointer;
+    font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semi);
+    cursor: pointer;
+    box-shadow: var(--shadow-lift);
+  }
+
+  .pwa-install-dismiss {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: var(--color-bg-elevated);
+    border: var(--border-thin) solid var(--color-border);
+    border-radius: 999px;
+    color: var(--color-text-muted);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: var(--shadow-lift);
+  }
+
+  .pwa-install-dismiss:hover {
+    color: var(--color-text);
+  }
+
+  @media (max-width: 700px) {
+    .pwa-install-anchor {
+      top: auto;
+      bottom: calc(96px + env(safe-area-inset-bottom));
+      right: var(--space-md);
+    }
+
+    .pwa-install-cta {
+      padding: var(--space-xs) var(--space-md);
+      font-size: var(--font-size-xs);
+    }
   }
 
   .pwa-action {

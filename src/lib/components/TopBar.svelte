@@ -31,11 +31,21 @@
         <span class="meta">{editor.dimensions.width}×{editor.dimensions.height}</span>
       {/if}
       {#if editor.rawSourceMode === 'sensor'}
-        <span class="meta">·</span>
-        <span class="badge">RAW · sensor</span>
+        <span
+          class="raw-badge sensor"
+          title="Editing the 16-bit linear sensor data. Exposure pulls bring back highlight headroom an 8-bit JPEG would have clipped."
+        >
+          <span class="dot"></span>
+          RAW · 14-bit sensor
+        </span>
       {:else if editor.rawSourceMode === 'preview'}
-        <span class="meta">·</span>
-        <span class="badge dim">RAW · preview</span>
+        <span
+          class="raw-badge preview"
+          title="Sensor decode unsupported for this file. Editing the camera's baked JPEG preview - no extra headroom."
+        >
+          <span class="dot"></span>
+          RAW · JPEG preview
+        </span>
       {/if}
     {/if}
     {#if editor.isRendering}
@@ -139,16 +149,47 @@
     color: var(--color-warn);
   }
 
-  .badge {
-    color: var(--color-accent);
+  .raw-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    margin-left: 6px;
+    border-radius: var(--radius-pill);
+    border: 1px solid transparent;
     font-family: var(--font-mono);
     font-size: 10px;
-    letter-spacing: .6px;
+    font-weight: 600;
+    letter-spacing: .8px;
     text-transform: uppercase;
+    cursor: help;
   }
 
-  .badge.dim {
-    color: var(--color-text-muted);
+  .raw-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 6px currentColor;
+  }
+
+  .raw-badge.sensor {
+    color: var(--color-ok);
+    background: color-mix(in srgb, var(--color-ok) 12%, transparent);
+    border-color: color-mix(in srgb, var(--color-ok) 35%, transparent);
+  }
+
+  .raw-badge.preview {
+    color: var(--color-warn);
+    background: color-mix(in srgb, var(--color-warn) 12%, transparent);
+    border-color: color-mix(in srgb, var(--color-warn) 35%, transparent);
+  }
+
+  @media (max-width: 700px) {
+    .raw-badge {
+      font-size: 9px;
+      padding: 2px 7px;
+    }
   }
 
   .actions {
