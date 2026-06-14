@@ -183,7 +183,7 @@
       <div class="placeholder">
         <p class="title">Drop an image to begin</p>
         <p class="hint">or use Open in the top bar</p>
-        <p class="kbd">supports JPG · PNG · WEBP · AVIF · RAW</p>
+        <p class="kbd">supports JPG · PNG · WEBP · AVIF · RAW (14-bit sensor)</p>
       </div>
     {/if}
 

@@ -53,10 +53,16 @@ panels on desktop. Same engine on both.
 **Formats**
 
 - Standard: JPG, PNG, WEBP, AVIF, GIF, BMP
-- Camera RAW (embedded JPEG preview): CR2, NEF, NRW, ARW, SR2, DNG, ORF,
-  RW2, PEF, RAF, X3F, 3FR, CRW, ORF, MRW, DCR, KDC, MEF, MOS, ERF
-- CR3 and other HEIF-wrapped sensor data are not supported yet -
-  full RAW demosaicing is on the roadmap
+- Camera RAW, full sensor pipeline: TIFF / DNG with uncompressed or
+  lossless-JPEG (Compression=7) Bayer strips. Decodes 14/16-bit linear,
+  demosaics RGGB, applies AsShotNeutral white balance, and tonemaps to
+  8-bit sRGB. Exposure adjustments rebake from the linear source so you
+  get full headroom for highlight pulls.
+- Camera RAW, preview fallback: when sensor decode isn't supported
+  (CR3 / HEIF wrap, exotic compression, non-RGGB pattern), the editor
+  lifts the embedded JPEG preview baked by the camera.
+- Recognised RAW extensions: CR2, CR3, NEF, NRW, ARW, SR2, DNG, ORF,
+  RW2, PEF, RAF, X3F, 3FR, CRW, MRW, DCR, KDC, MEF, MOS, ERF.
 
 **Plane mode**
 
@@ -143,7 +149,8 @@ You'll need:
 | `node scripts/smoke-develop.mjs` | Desktop develop module flow |
 | `node scripts/smoke-mobile.mjs` | iPhone 14 Pro viewport flow |
 | `node scripts/smoke-color.mjs` | Color picker mode-switch flow |
-| `node scripts/smoke-raw.mjs` | RAW (.nef) embedded-JPEG decode flow |
+| `node scripts/smoke-raw.mjs` | RAW (.nef) embedded-JPEG fallback flow |
+| `node scripts/smoke-raw-full.mjs` | Synthetic DNG sensor decode + exposure rebake |
 
 Smoke tests assume a dev server on `:5199`. Launch one with:
 

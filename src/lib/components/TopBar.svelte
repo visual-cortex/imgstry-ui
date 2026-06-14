@@ -30,6 +30,13 @@
         <span class="meta">·</span>
         <span class="meta">{editor.dimensions.width}×{editor.dimensions.height}</span>
       {/if}
+      {#if editor.rawSourceMode === 'sensor'}
+        <span class="meta">·</span>
+        <span class="badge">RAW · sensor</span>
+      {:else if editor.rawSourceMode === 'preview'}
+        <span class="meta">·</span>
+        <span class="badge dim">RAW · preview</span>
+      {/if}
     {/if}
     {#if editor.isRendering}
       <span class="status">rendering…</span>
@@ -130,6 +137,18 @@
 
   .status.warn {
     color: var(--color-warn);
+  }
+
+  .badge {
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+  }
+
+  .badge.dim {
+    color: var(--color-text-muted);
   }
 
   .actions {

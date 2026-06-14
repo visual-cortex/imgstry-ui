@@ -4,6 +4,7 @@ import {
   type HistogramData,
   Imgstry,
   isRawExtension,
+  tonemap16to8,
 } from 'imgstry';
 import {
   type Adjustments,
@@ -20,6 +21,15 @@ interface HistoryEntry {
   id: string;
   label: string;
   adjustments: Adjustments;
+}
+
+interface RawSource {
+  rgb16: Uint16Array;
+  width: number;
+  height: number;
+  whiteBalance: [number, number, number];
+  blackLevel: number;
+  whiteLevel: number;
 }
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -60,12 +70,15 @@ class EditorState {
   public imageName = $state('');
   public history = $state<HistoryEntry[]>([]);
   public dimensions = $state<{ width: number; height: number } | null>(null);
+  public rawSourceMode = $state<'sensor' | 'preview' | null>(null);
 
   private _engine: Imgstry | null = null;
   private _debounce: ReturnType<typeof setTimeout> | null = null;
   private _renderQueue: Promise<void> = Promise.resolve();
   private _renderPending = false;
   private _historyCounter = 0;
+  private _rawSource: RawSource | null = null;
+  private _lastRebakeExposure: number = Number.NaN;
 
   public attach(canvas: HTMLCanvasElement): void {
     this._engine?.dispose();
@@ -82,29 +95,77 @@ class EditorState {
       return;
     }
 
-    const isRaw = isRawExtension(file.name);
-    const url = isRaw ? null : URL.createObjectURL(file);
+    this._rawSource = null;
+    this._lastRebakeExposure = Number.NaN;
+    this.rawSourceMode = null;
 
-    try {
-      const image = url !== null
-        ? await Imgstry.loadImage(url)
-        : await Imgstry.loadRaw(file);
-      this._engine.drawImage(image);
-      this.imageName = file.name;
-      this.hasImage = true;
-      this.dimensions = { width: image.width as number, height: image.height as number };
-      this.adjustments = clone(DEFAULT_ADJUSTMENTS);
-      this.histogram = this._engine.histogram;
-      this.history = [{
-        id: `h${this._historyCounter++}`,
-        label: 'Import',
-        adjustments: clone(this.adjustments),
-      }];
-    } finally {
-      if (url !== null) {
-        URL.revokeObjectURL(url);
-      }
+    if (isRawExtension(file.name)) {
+      await this._openRaw(file);
+    } else {
+      await this._openStandard(file);
     }
+  }
+
+  private async _openRaw(file: File): Promise<void> {
+    const engine = this._engine;
+    if (!engine) return;
+
+    const result = await Imgstry.loadRawFull(file);
+    const bitmap = await createImageBitmap(result.imageData);
+    try {
+      engine.drawImage(bitmap);
+    } finally {
+      bitmap.close();
+    }
+
+    if (
+      result.source === 'sensor' &&
+      result.rgb16 &&
+      result.whiteBalance &&
+      result.blackLevel !== undefined &&
+      result.whiteLevel !== undefined
+    ) {
+      this._rawSource = {
+        rgb16: result.rgb16,
+        width: result.width,
+        height: result.height,
+        whiteBalance: result.whiteBalance,
+        blackLevel: result.blackLevel,
+        whiteLevel: result.whiteLevel,
+      };
+      this._lastRebakeExposure = 0;
+    }
+
+    this.rawSourceMode = result.source;
+    this._finalizeOpen(file.name, result.width, result.height);
+  }
+
+  private async _openStandard(file: File): Promise<void> {
+    const engine = this._engine;
+    if (!engine) return;
+
+    const url = URL.createObjectURL(file);
+    try {
+      const image = await Imgstry.loadImage(url);
+      engine.drawImage(image);
+      this._finalizeOpen(file.name, image.naturalWidth, image.naturalHeight);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  private _finalizeOpen(name: string, width: number, height: number): void {
+    if (!this._engine) return;
+    this.imageName = name;
+    this.hasImage = true;
+    this.dimensions = { width, height };
+    this.adjustments = clone(DEFAULT_ADJUSTMENTS);
+    this.histogram = this._engine.histogram;
+    this.history = [{
+      id: `h${this._historyCounter++}`,
+      label: 'Import',
+      adjustments: clone(this.adjustments),
+    }];
   }
 
   public requestRender(historyLabel?: string): void {
@@ -193,7 +254,9 @@ class EditorState {
 
       engine.clear();
 
-      if (isPristine(settings)) {
+      if (this._rawSource) {
+        await this._renderRaw(engine, settings);
+      } else if (isPristine(settings)) {
         engine.reset();
       } else {
         this._queueOperations(engine, settings);
@@ -222,6 +285,39 @@ class EditorState {
     } finally {
       this.isRendering = false;
     }
+  }
+
+  private async _renderRaw(engine: Imgstry, settings: Adjustments): Promise<void> {
+    const raw = this._rawSource;
+    if (!raw) return;
+
+    // Re-tonemap the linear 16-bit source whenever exposure changes;
+    // other adjustments run as 8-bit ops on top of the rebaked base.
+    if (settings.exposure !== this._lastRebakeExposure) {
+      const rebaked = tonemap16to8(raw.rgb16, raw.width, raw.height, {
+        blackLevel: raw.blackLevel,
+        whiteLevel: raw.whiteLevel,
+        whiteBalance: raw.whiteBalance,
+        exposure: settings.exposure,
+      });
+      const buffer = new Uint8ClampedArray(rebaked);
+      const imageData = new ImageData(buffer, raw.width, raw.height);
+      const bitmap = await createImageBitmap(imageData);
+      try {
+        engine.drawImage(bitmap);
+      } finally {
+        bitmap.close();
+      }
+      this._lastRebakeExposure = settings.exposure;
+    }
+
+    const withoutExposure: Adjustments = { ...settings, exposure: 0 };
+    if (isPristine(withoutExposure)) {
+      // Rebake already on the canvas; nothing else to apply.
+      return;
+    }
+    this._queueOperations(engine, withoutExposure);
+    await engine.render('original');
   }
 
   // eslint-disable-next-line complexity
