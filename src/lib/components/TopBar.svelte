@@ -48,11 +48,26 @@
         </span>
       {/if}
     {/if}
-    {#if editor.isRendering}
-      <span class="status">rendering…</span>
-    {:else if editor.showOriginal}
-      <span class="status warn">showing original</span>
-    {/if}
+    <span class="indicator" aria-live="polite">
+      {#if editor.isRendering}
+        <span class="spinner" role="status" aria-label="Rendering"></span>
+      {:else if editor.showOriginal}
+        <svg
+          class="eye"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          role="img"
+          aria-label="Showing original"
+        >
+          <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      {/if}
+    </span>
   </div>
 
   <div class="actions">
@@ -137,16 +152,40 @@
     font-size: 11px;
   }
 
-  .status {
-    color: var(--color-accent);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  /* One small fixed slot that holds either the render spinner or the
+     "showing original" eye. Fixed width so toggling never reflows the
+     centered group (no more jumping), and no oversized status text. */
+  .indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 16px;
+    height: 16px;
     margin-left: 4px;
   }
 
-  .status.warn {
+  .spinner {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--color-accent) 28%, transparent);
+    border-top-color: var(--color-accent);
+    animation: status-spin 0.7s linear infinite;
+  }
+
+  @keyframes status-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .eye {
+    width: 15px;
+    height: 15px;
     color: var(--color-warn);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spinner { animation-duration: 1.4s; }
   }
 
   .raw-badge {
@@ -162,6 +201,8 @@
     font-weight: 600;
     letter-spacing: .8px;
     text-transform: uppercase;
+    white-space: nowrap;
+    flex: none;
     cursor: help;
   }
 
@@ -217,7 +258,14 @@
     .center {
       grid-area: center;
       justify-self: start;
+      min-width: 0;
+      overflow: hidden;
       font-size: 11px;
+    }
+    .filename {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .module { display: none; }
     .actions :global(button) {
