@@ -236,19 +236,61 @@ export const PRESETS: Preset[] = [
     },
   },
   {
+    // Per-channel transfer curves measured from a reference Lark render
+    // (input -> output, sampled at 1/8 stops). Reproduces the filter to
+    // ~1.7 levels/channel through the engine's curve op. Signature: lifted
+    // blacks (faded), near-linear warm mids, blue highlights capped ~0.91.
     id: 'ig-lark',
     name: 'Lark',
     group: 'Instagram',
     patch: {
-      exposure: .2,
-      contrast: 5,
-      highlights: -15,
-      shadows: 25,
-      whites: 12,
-      vibrance: 15,
-      saturation: -5,
-      temperature: -12,
-      tintShift: -5,
+      vibrance: 8,
+      curves: {
+        rgb: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
+        red: [
+          { x: 0, y: .077 }, { x: .125, y: .201 }, { x: .251, y: .331 },
+          { x: .376, y: .459 }, { x: .502, y: .601 }, { x: .627, y: .726 },
+          { x: .753, y: .853 }, { x: .878, y: .974 }, { x: 1, y: 1 },
+        ],
+        green: [
+          { x: 0, y: .082 }, { x: .125, y: .214 }, { x: .251, y: .335 },
+          { x: .376, y: .466 }, { x: .502, y: .594 }, { x: .627, y: .724 },
+          { x: .753, y: .855 }, { x: .878, y: .987 }, { x: 1, y: 1 },
+        ],
+        blue: [
+          { x: 0, y: .075 }, { x: .125, y: .194 }, { x: .251, y: .316 },
+          { x: .376, y: .452 }, { x: .502, y: .579 }, { x: .627, y: .724 },
+          { x: .753, y: .859 }, { x: .878, y: .910 }, { x: 1, y: .910 },
+        ],
+      },
+    },
+  },
+  {
+    // Measured from a reference Calderon render. Reproduces to ~2.4
+    // levels/channel. Signature: strong warm contrast lift on R/G,
+    // blue highlights capped ~0.98.
+    id: 'ig-calderon',
+    name: 'Calderon',
+    group: 'Instagram',
+    patch: {
+      curves: {
+        rgb: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
+        red: [
+          { x: 0, y: .006 }, { x: .125, y: .158 }, { x: .251, y: .318 },
+          { x: .376, y: .474 }, { x: .502, y: .657 }, { x: .627, y: .809 },
+          { x: .753, y: .964 }, { x: .878, y: 1 }, { x: 1, y: 1 },
+        ],
+        green: [
+          { x: 0, y: .008 }, { x: .125, y: .164 }, { x: .251, y: .302 },
+          { x: .376, y: .465 }, { x: .502, y: .619 }, { x: .627, y: .773 },
+          { x: .753, y: .930 }, { x: .878, y: 1 }, { x: 1, y: 1 },
+        ],
+        blue: [
+          { x: 0, y: .001 }, { x: .125, y: .127 }, { x: .251, y: .269 },
+          { x: .376, y: .425 }, { x: .502, y: .582 }, { x: .627, y: .749 },
+          { x: .753, y: .910 }, { x: .878, y: .976 }, { x: 1, y: .976 },
+        ],
+      },
     },
   },
   {
