@@ -48,11 +48,26 @@
         </span>
       {/if}
     {/if}
-    <span
-      class="status"
-      class:warn={editor.showOriginal && !editor.isRendering}
-      class:visible={editor.isRendering || editor.showOriginal}
-    >{editor.isRendering ? 'rendering…' : editor.showOriginal ? 'showing original' : ''}</span>
+    <span class="indicator" aria-live="polite">
+      {#if editor.isRendering}
+        <span class="spinner" role="status" aria-label="Rendering"></span>
+      {:else if editor.showOriginal}
+        <svg
+          class="eye"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          role="img"
+          aria-label="Showing original"
+        >
+          <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      {/if}
+    </span>
   </div>
 
   <div class="actions">
@@ -137,30 +152,40 @@
     font-size: 11px;
   }
 
-  .status {
-    /* Fixed-width slot sized to the widest label ('showing original').
-       The text content toggles between empty / 'rendering…' / 'showing
-       original'; reserving the slot keeps the centered group from
-       reflowing (and shoving the filename around) on every render tick. */
+  /* One small fixed slot that holds either the render spinner or the
+     "showing original" eye. Fixed width so toggling never reflows the
+     centered group (no more jumping), and no oversized status text. */
+  .indicator {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex: none;
-    width: 9.5rem;
-    color: var(--color-accent);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0;
-    transition: opacity 0.15s ease;
+    width: 16px;
+    height: 16px;
+    margin-left: 4px;
   }
 
-  .status.visible {
-    opacity: 1;
+  .spinner {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--color-accent) 28%, transparent);
+    border-top-color: var(--color-accent);
+    animation: status-spin 0.7s linear infinite;
   }
 
-  .status.warn {
+  @keyframes status-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .eye {
+    width: 15px;
+    height: 15px;
     color: var(--color-warn);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spinner { animation-duration: 1.4s; }
   }
 
   .raw-badge {
@@ -242,10 +267,6 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    /* On mobile the centre row is left-aligned, so the status can't shove
-       the filename - drop the desktop fixed-width reservation and let it
-       size to content instead of stealing room from the RAW chip. */
-    .status { width: auto; }
     .module { display: none; }
     .actions :global(button) {
       font-size: 11px;
