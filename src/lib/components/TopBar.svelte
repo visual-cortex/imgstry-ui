@@ -176,6 +176,8 @@
     font-weight: 600;
     letter-spacing: .8px;
     text-transform: uppercase;
+    white-space: nowrap;
+    flex: none;
     cursor: help;
   }
 
@@ -231,8 +233,19 @@
     .center {
       grid-area: center;
       justify-self: start;
+      min-width: 0;
+      overflow: hidden;
       font-size: 11px;
     }
+    .filename {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    /* On mobile the centre row is left-aligned, so the status can't shove
+       the filename - drop the desktop fixed-width reservation and let it
+       size to content instead of stealing room from the RAW chip. */
+    .status { width: auto; }
     .module { display: none; }
     .actions :global(button) {
       font-size: 11px;
