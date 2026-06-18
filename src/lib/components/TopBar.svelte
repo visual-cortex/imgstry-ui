@@ -48,11 +48,11 @@
         </span>
       {/if}
     {/if}
-    {#if editor.isRendering}
-      <span class="status">rendering…</span>
-    {:else if editor.showOriginal}
-      <span class="status warn">showing original</span>
-    {/if}
+    <span
+      class="status"
+      class:warn={editor.showOriginal && !editor.isRendering}
+      class:visible={editor.isRendering || editor.showOriginal}
+    >{editor.isRendering ? 'rendering…' : editor.showOriginal ? 'showing original' : ''}</span>
   </div>
 
   <div class="actions">
@@ -138,11 +138,25 @@
   }
 
   .status {
+    /* Fixed-width slot sized to the widest label ('showing original').
+       The text content toggles between empty / 'rendering…' / 'showing
+       original'; reserving the slot keeps the centered group from
+       reflowing (and shoving the filename around) on every render tick. */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 9.5rem;
     color: var(--color-accent);
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-left: 4px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .status.visible {
+    opacity: 1;
   }
 
   .status.warn {
